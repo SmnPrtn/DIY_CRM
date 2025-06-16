@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Admin Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .admin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f59e0b;
+        }
+        
+        .admin-icon {
+            font-size: 32px;
+        }
+        
+        .admin-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #92400e;
+        }
+        
+        .admin-subtitle {
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 24px;
+        }
+        
+        .admin-tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .admin-tab:hover {
+            color: #374151;
+        }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-orange {
+            background-color: #ea580c;
+        }
+        
+        .button-orange:hover {
+            background-color: #c2410c;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .button-gray {
+            background-color: #6b7280;
+        }
+        
+        .button-gray:hover {
+            background-color: #4b5563;
+        }
+        
+        .field-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        
+        .field-item:hover {
+            border-color: #d1d5db;
+            background-color: #f9fafb;
+        }
+        
+        .field-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+        
+        .field-checkbox {
+            transform: scale(1.2);
+        }
+        
+        .field-details h4 {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .field-meta {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .field-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .icon-button:hover {
+            color: #2563eb;
+            background-color: #f3f4f6;
+        }
+        
+        .icon-button.delete:hover {
+            color: #dc2626;
+        }
+        
+        .icon-button.disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .icon-button.disabled:hover {
+            color: #d1d5db;
+            background: none;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-required {
+            background-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        .badge-optional {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        .badge-inactive {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+        }
+        
+        .tag-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .tag-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-green { background-color: #dcfce7; color: #166534; }
+        .tag-blue { background-color: #dbeafe; color: #1e40af; }
+        .tag-purple { background-color: #f3e8ff; color: #7c2d12; }
+        .tag-orange { background-color: #fed7aa; color: #9a3412; }
+        .tag-gray { background-color: #f3f4f6; color: #6b7280; }
+        .tag-red { background-color: #fecaca; color: #dc2626; }
+        .tag-yellow { background-color: #fef3c7; color: #d97706; }
+        
+        .tag-usage {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            ring: 2px;
+            ring-color: #bfdbfe;
+        }
+        
+        .form-input.error {
+            border-color: #dc2626;
+        }
+        
+        .form-error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 500px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .warning-box {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .warning-title {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .warning-text {
+            color: #92400e;
+            font-size: 14px;
+        }
+        
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .info-text {
+            color: #1e40af;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-3,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .modal-content {
+                width: 95vw;
+                max-height: 95vh;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .field-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            
+            .field-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="admin-header">
+                <div class="admin-icon">🛡️</div>
+                <div>
+                    <div class="admin-title">Admin Control Panel</div>
+                    <div class="admin-subtitle">Konfiguriere und verwalte dein CRM-System</div>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Administratorbereich</div>
+                <div class="warning-text">
+                    Änderungen in diesem Bereich wirken sich auf das gesamte CRM-System aus. 
+                    Verwenden Sie diese Funktionen mit Vorsicht.
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button active">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchTab('fields')" id="tab-fields">
+                        📝 Felder verwalten
+                    </button>
+                    <button class="admin-tab" onclick="switchTab('tags')" id="tab-tags">
+                        🏷️ Tags verwalten
+                    </button>
+                    <button class="admin-tab" onclick="switchTab('system')" id="tab-system">
+                        ⚙️ System
+                    </button>
+                </div>
+
+                <!-- Fields Management -->
+                <div id="fields-content">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 600; color: #1f2937;">Felder verwalten</h3>
+                            <button class="button button-orange" onclick="showFieldModal()">
+                                ➕ Neues Feld
+                            </button>
+                        </div>
+                        
+                        <div class="info-box">
+                            <div class="info-title">💡 Feld-Management</div>
+                            <div class="info-text">
+                                Hier können Sie die Felder für Unternehmen und Kontakte anpassen. 
+                                Felder können als Pflichtfelder markiert, aktiviert/deaktiviert und neu angeordnet werden.
+                            </div>
+                        </div>
+                        
+                        <!-- Field Type Selector -->
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-weight: 500; margin-bottom: 8px; display: block;">Feldtyp:</label>
+                            <select id="field-type-select" onchange="updateFieldsList()" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <option value="company">Unternehmen-Felder</option>
+                                <option value="contact">Kontakt-Felder</option>
+                            </select>
+                        </div>
+                        
+                        <div id="fields-list">
+                            <!-- Fields will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags Management -->
+                <div id="tags-content" class="hidden">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 600; color: #1f2937;">Tags verwalten</h3>
+                            <button class="button button-orange" onclick="showTagModal()">
+                                ➕ Neuer Tag
+                            </button>
+                        </div>
+                        
+                        <div class="info-box">
+                            <div class="info-title">🏷️ Tag-System</div>
+                            <div class="info-text">
+                                Tags helfen bei der Kategorisierung von Unternehmen. 
+                                Sie können beliebig viele Tags erstellen und Farben zuweisen.
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Add Tag -->
+                        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            <h4 style="margin-bottom: 12px; color: #374151;">Schnell hinzufügen:</h4>
+                            <div class="form-row">
+                                <input type="text" id="quick-tag-name" placeholder="Tag-Name" class="form-input">
+                                <select id="quick-tag-color" class="form-input">
+                                    <option value="tag-blue">Blau</option>
+                                    <option value="tag-green">Grün</option>
+                                    <option value="tag-purple">Lila</option>
+                                    <option value="tag-orange">Orange</option>
+                                    <option value="tag-red">Rot</option>
+                                    <option value="tag-yellow">Gelb</option>
+                                    <option value="tag-gray">Grau</option>
+                                </select>
+                            </div>
+                            <button class="button" onclick="quickAddTag()" style="margin-top: 12px;">
+                                ➕ Hinzufügen
+                            </button>
+                        </div>
+                        
+                        <div id="tags-list">
+                            <!-- Tags will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Management -->
+                <div id="system-content" class="hidden">
+                    <div class="card">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 24px;">System-Verwaltung</h3>
+                        
+                        <!-- Data Management -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">📊 Daten-Management</h4>
+                            
+                            <div class="grid grid-cols-2" style="gap: 16px;">
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-companies">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Unternehmen</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-contacts">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Kontakte</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-reminders">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Erinnerungen</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-tags">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Tags</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Backup & Restore -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">💾 Backup & Wiederherstellung</h4>
+                            
+                            <div class="grid grid-cols-3" style="gap: 16px;">
+                                <button class="button" onclick="createBackup()">
+                                    💾 Backup erstellen
+                                </button>
+                                <label class="button button-green" style="cursor: pointer; justify-content: center;">
+                                    📥 Backup laden
+                                    <input type="file" accept=".json" onchange="restoreBackup(this)" style="display: none;">
+                                </label>
+                                <button class="button button-orange" onclick="exportAllData()">
+                                    📤 Daten exportieren
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Reset Options -->
+                        <div>
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">🔄 System zurücksetzen</h4>
+                            
+                            <div class="warning-box">
+                                <div class="warning-title">⚠️ Gefährliche Aktionen</div>
+                                <div class="warning-text">
+                                    Diese Aktionen können nicht rückgängig gemacht werden. 
+                                    Erstellen Sie vor der Verwendung ein Backup.
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-3" style="gap: 16px;">
+                                <button class="button" onclick="resetReminders()" style="background-color: #dc2626;">
+                                    🗑️ Erinnerungen löschen
+                                </button>
+                                <button class="button" onclick="resetCompanies()" style="background-color: #dc2626;">
+                                    🗑️ Unternehmen löschen
+                                </button>
+                                <button class="button" onclick="resetAllData()" style="background-color: #7f1d1d;">
+                                    💥 Alles zurücksetzen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Field Modal -->
+    <div id="field-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" id="field-modal-title">Neues Feld</h3>
+            
+            <form id="field-form">
+                <div class="form-group">
+                    <label class="form-label">Feldtyp</label>
+                    <select id="modal-field-type" class="form-input">
+                        <option value="company">Unternehmen-Feld</option>
+                        <option value="contact">Kontakt-Feld</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Feldname (technisch) *</label>
+                        <input type="text" id="field-name-input" class="form-input" placeholder="z.B. website">
+                        <div id="field-name-error" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Anzeigename *</label>
+                        <input type="text" id="field-label-input" class="form-input" placeholder="z.B. Website">
+                        <div id="field-label-error" class="form-error" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Eingabetyp</label>
+                    <select id="field-type-input" class="form-input">
+                        <option value="text">Text</option>
+                        <option value="email">E-Mail</option>
+                        <option value="url">URL</option>
+                        <option value="tel">Telefon</option>
+                        <option value="textarea">Textbereich</option>
+                        <option value="number">Zahl</option>
+                        <option value="date">Datum</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="field-required-input">
+                        <label>Pflichtfeld</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="field-active-input" checked>
+                        <label>Aktiv</label>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="button button-orange" onclick="saveField()">Speichern</button>
+                <button class="button button-gray" onclick="hideFieldModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tag Modal -->
+    <div id="tag-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" id="tag-modal-title">Neuer Tag</h3>
+            
+            <form id="tag-form">
+                <div class="form-group">
+                    <label class="form-label">Tag-Name *</label>
+                    <input type="text" id="tag-name-input" class="form-input" placeholder="z.B. Wichtiger Kunde">
+                    <div id="tag-name-error" class="form-error" style="display: none;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Farbe</label>
+                    <select id="tag-color-input" class="form-input">
+                        <option value="tag-blue">Blau</option>
+                        <option value="tag-green">Grün</option>
+                        <option value="tag-purple">Lila</option>
+                        <option value="tag-orange">Orange</option>
+                        <option value="tag-red">Rot</option>
+                        <option value="tag-yellow">Gelb</option>
+                        <option value="tag-gray">Grau</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Vorschau</label>
+                    <div>
+                        <span id="tag-preview" class="tag-badge tag-blue">Beispiel Tag</span>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="button button-orange" onclick="saveTag()">Speichern</button>
+                <button class="button button-gray" onclick="hideTagModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management (same as previous files)
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+        }
+
+        let crmData = CRMData.load();
+        let currentFieldType = 'company';
+        let editingField = null;
+        let editingTag = null;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab styling
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('fields-content').classList.toggle('hidden', tabName !== 'fields');
+            document.getElementById('tags-content').classList.toggle('hidden', tabName !== 'tags');
+            document.getElementById('system-content').classList.toggle('hidden', tabName !== 'system');
+            
+            // Update content
+            if (tabName === 'fields') {
+                updateFieldsList();
+            } else if (tabName === 'tags') {
+                updateTagsList();
+            } else if (tabName === 'system') {
+                updateSystemStats();
+            }
+        }
+
+        // Fields Management
+        function updateFieldsList() {
+            currentFieldType = document.getElementById('field-type-select').value;
+            const container = document.getElementById('fields-list');
+            const fields = currentFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+            
+            const sortedFields = [...fields].sort((a, b) => a.order - b.order);
+            
+            container.innerHTML = sortedFields.map(field => {
+                const canDelete = !['name', 'email'].includes(field.name);
+                const canEdit = true;
+                
+                return `
+                    <div class="field-item">
+                        <div class="field-info">
+                            <input 
+                                type="checkbox" 
+                                class="field-checkbox"
+                                ${field.active ? 'checked' : ''}
+                                onchange="toggleField(${field.id})"
+                            />
+                            <div class="field-details">
+                                <h4>${field.label} ${field.required ? '<span class="badge badge-required">Pflicht</span>' : '<span class="badge badge-optional">Optional</span>'}
+                                ${!field.active ? '<span class="badge badge-inactive">Inaktiv</span>' : ''}</h4>
+                                <div class="field-meta">
+                                    ${field.name} (${field.type})
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-actions">
+                            <button 
+                                class="icon-button ${canEdit ? '' : 'disabled'}" 
+                                onclick="editField(${field.id})"
+                                ${canEdit ? '' : 'disabled'}
+                                title="Bearbeiten"
+                            >
+                                ✏️
+                            </button>
+                            <button 
+                                class="icon-button delete ${canDelete ? '' : 'disabled'}" 
+                                onclick="deleteField(${field.id})"
+                                ${canDelete ? '' : 'disabled'}
+                                title="${canDelete ? 'Löschen' : 'Systemfeld - kann nicht gelöscht werden'}"
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleField(fieldId) {
+            const fields = currentFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+            const field = fields.find(f => f.id === fieldId);
+            if (field) {
+                field.active = !field.active;
+                CRMData.save(crmData);
+                updateFieldsList();
+            }
+        }
+
+        function showFieldModal() {
+            editingField = null;
+            document.getElementById('field-modal-title').textContent = 'Neues Feld';
+            document.getElementById('modal-field-type').value = currentFieldType;
+            clearFieldForm();
+            document.getElementById('field-modal').classList.remove('hidden');
+        }
+
+        function hideFieldModal() {
+            document.getElementById('field-modal').classList.add('hidden');
+            clearFieldErrors();
+        }
+
+        function clearFieldForm() {
+            document.getElementById('field-name-input').value = '';
+            document.getElementById('field-label-input').value = '';
+            document.getElementById('field-type-input').value = 'text';
+            document.getElementById('field-required-input').checked = false;
+            document.getElementById('field-active-input').checked = true;
+        }
+
+        function clearFieldErrors() {
+            document.querySelectorAll('#field-modal .form-error').forEach(error => {
+                error.style.display = 'none';
+                error.textContent = '';
+            });
+            document.querySelectorAll('#field-modal .form-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        function validateField() {
+            clearFieldErrors();
+            let hasErrors = false;
+            
+            const name = document.getElementById('field-name-input').value.trim();
+            const label = document.getElementById('field-label-input').value.trim();
+            
+            if (!name) {
+                showFieldError('field-name-input', 'field-name-error', 'Feldname ist erforderlich');
+                hasErrors = true;
+            } else if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+                showFieldError('field-name-input', 'field-name-error', 'Ungültiger Feldname (nur Buchstaben, Zahlen und _)');
+                hasErrors = true;
+            } else {
+                // Check if name already exists
+                const fields = currentFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+                const existingField = fields.find(f => f.name === name && (!editingField || f.id !== editingField.id));
+                if (existingField) {
+                    showFieldError('field-name-input', 'field-name-error', 'Feldname bereits vorhanden');
+                    hasErrors = true;
+                }
+            }
+            
+            if (!label) {
+                showFieldError('field-label-input', 'field-label-error', 'Anzeigename ist erforderlich');
+                hasErrors = true;
+            }
+            
+            return !hasErrors;
+        }
+
+        function showFieldError(inputId, errorId, message) {
+            document.getElementById(inputId).classList.add('error');
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function saveField() {
+            if (!validateField()) return;
+            
+            const fieldData = {
+                name: document.getElementById('field-name-input').value.trim(),
+                label: document.getElementById('field-label-input').value.trim(),
+                type: document.getElementById('field-type-input').value,
+                required: document.getElementById('field-required-input').checked,
+                active: document.getElementById('field-active-input').checked
+            };
+            
+            const targetFieldType = document.getElementById('modal-field-type').value;
+            const fields = targetFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+            
+            if (editingField) {
+                const index = fields.findIndex(f => f.id === editingField.id);
+                fields[index] = { ...fields[index], ...fieldData };
+            } else {
+                const newField = {
+                    id: Date.now(),
+                    ...fieldData,
+                    order: fields.length + 1
+                };
+                fields.push(newField);
+            }
+            
+            CRMData.save(crmData);
+            hideFieldModal();
+            
+            // Update current view if needed
+            if (targetFieldType === currentFieldType) {
+                updateFieldsList();
+            }
+        }
+
+        function editField(fieldId) {
+            const fields = currentFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+            editingField = fields.find(f => f.id === fieldId);
+            
+            if (!editingField) return;
+            
+            document.getElementById('field-modal-title').textContent = 'Feld bearbeiten';
+            document.getElementById('modal-field-type').value = currentFieldType;
+            document.getElementById('field-name-input').value = editingField.name;
+            document.getElementById('field-label-input').value = editingField.label;
+            document.getElementById('field-type-input').value = editingField.type;
+            document.getElementById('field-required-input').checked = editingField.required;
+            document.getElementById('field-active-input').checked = editingField.active;
+            
+            document.getElementById('field-modal').classList.remove('hidden');
+        }
+
+        function deleteField(fieldId) {
+            const fields = currentFieldType === 'company' ? crmData.companyFields : crmData.contactFields;
+            const field = fields.find(f => f.id === fieldId);
+            
+            if (!field || ['name', 'email'].includes(field.name)) return;
+            
+            if (confirm(`Möchten Sie das Feld "${field.label}" wirklich löschen?`)) {
+                const index = fields.findIndex(f => f.id === fieldId);
+                fields.splice(index, 1);
+                CRMData.save(crmData);
+                updateFieldsList();
+            }
+        }
+
+        // Tags Management
+        function updateTagsList() {
+            const container = document.getElementById('tags-list');
+            
+            container.innerHTML = crmData.tags.map(tag => {
+                const usage = crmData.companies.filter(c => c.tags && c.tags.includes(tag.id)).length;
+                
+                return `
+                    <div class="tag-item">
+                        <div class="tag-preview">
+                            <span class="tag-badge ${tag.color}">${tag.name}</span>
+                            <div class="tag-usage">
+                                ${usage} Unternehmen verwenden diesen Tag
+                            </div>
+                        </div>
+                        <div class="field-actions">
+                            <button class="icon-button" onclick="editTag(${tag.id})" title="Bearbeiten">
+                                ✏️
+                            </button>
+                            <button class="icon-button delete" onclick="deleteTag(${tag.id})" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function quickAddTag() {
+            const name = document.getElementById('quick-tag-name').value.trim();
+            const color = document.getElementById('quick-tag-color').value;
+            
+            if (!name) {
+                alert('Bitte geben Sie einen Tag-Namen ein.');
+                return;
+            }
+            
+            const newTag = {
+                id: Date.now(),
+                name: name,
+                color: color
+            };
+            
+            crmData.tags.push(newTag);
+            CRMData.save(crmData);
+            
+            document.getElementById('quick-tag-name').value = '';
+            updateTagsList();
+        }
+
+        function showTagModal() {
+            editingTag = null;
+            document.getElementById('tag-modal-title').textContent = 'Neuer Tag';
+            clearTagForm();
+            updateTagPreview();
+            document.getElementById('tag-modal').classList.remove('hidden');
+        }
+
+        function hideTagModal() {
+            document.getElementById('tag-modal').classList.add('hidden');
+            clearTagErrors();
+        }
+
+        function clearTagForm() {
+            document.getElementById('tag-name-input').value = '';
+            document.getElementById('tag-color-input').value = 'tag-blue';
+        }
+
+        function clearTagErrors() {
+            document.querySelectorAll('#tag-modal .form-error').forEach(error => {
+                error.style.display = 'none';
+                error.textContent = '';
+            });
+            document.querySelectorAll('#tag-modal .form-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        function updateTagPreview() {
+            const name = document.getElementById('tag-name-input').value.trim() || 'Beispiel Tag';
+            const color = document.getElementById('tag-color-input').value;
+            
+            const preview = document.getElementById('tag-preview');
+            preview.textContent = name;
+            preview.className = `tag-badge ${color}`;
+        }
+
+        function saveTag() {
+            const name = document.getElementById('tag-name-input').value.trim();
+            const color = document.getElementById('tag-color-input').value;
+            
+            if (!name) {
+                document.getElementById('tag-name-input').classList.add('error');
+                document.getElementById('tag-name-error').textContent = 'Tag-Name ist erforderlich';
+                document.getElementById('tag-name-error').style.display = 'block';
+                return;
+            }
+            
+            const tagData = { name, color };
+            
+            if (editingTag) {
+                const index = crmData.tags.findIndex(t => t.id === editingTag.id);
+                crmData.tags[index] = { ...crmData.tags[index], ...tagData };
+            } else {
+                const newTag = {
+                    id: Date.now(),
+                    ...tagData
+                };
+                crmData.tags.push(newTag);
+            }
+            
+            CRMData.save(crmData);
+            hideTagModal();
+            updateTagsList();
+        }
+
+        function editTag(tagId) {
+            editingTag = crmData.tags.find(t => t.id === tagId);
+            if (!editingTag) return;
+            
+            document.getElementById('tag-modal-title').textContent = 'Tag bearbeiten';
+            document.getElementById('tag-name-input').value = editingTag.name;
+            document.getElementById('tag-color-input').value = editingTag.color;
+            updateTagPreview();
+            
+            document.getElementById('tag-modal').classList.remove('hidden');
+        }
+
+        function deleteTag(tagId) {
+            const tag = crmData.tags.find(t => t.id === tagId);
+            if (!tag) return;
+            
+            const usage = crmData.companies.filter(c => c.tags && c.tags.includes(tagId)).length;
+            const message = usage > 0 ? 
+                `Möchten Sie den Tag "${tag.name}" wirklich löschen? Er wird von ${usage} Unternehmen verwendet.` :
+                `Möchten Sie den Tag "${tag.name}" wirklich löschen?`;
+            
+            if (confirm(message)) {
+                // Remove tag from all companies
+                crmData.companies.forEach(company => {
+                    if (company.tags) {
+                        company.tags = company.tags.filter(t => t !== tagId);
+                    }
+                });
+                
+                // Remove tag from tags list
+                crmData.tags = crmData.tags.filter(t => t.id !== tagId);
+                
+                CRMData.save(crmData);
+                updateTagsList();
+            }
+        }
+
+        // System Management
+        function updateSystemStats() {
+            const totalContacts = crmData.companies.reduce((sum, company) => sum + (company.contacts || []).length, 0);
+            
+            document.getElementById('total-companies').textContent = crmData.companies.length;
+            document.getElementById('total-contacts').textContent = totalContacts;
+            document.getElementById('total-reminders').textContent = crmData.reminders.length;
+            document.getElementById('total-tags').textContent = crmData.tags.length;
+        }
+
+        function createBackup() {
+            const data = {
+                ...crmData,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crm-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function restoreBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.companies !== undefined && data.reminders !== undefined) {
+                        if (confirm('Möchten Sie wirklich alle Daten durch das Backup ersetzen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+                            crmData = { ...CRMData.getDefaultData(), ...data };
+                            CRMData.save(crmData);
+                            updateSystemStats();
+                            updateFieldsList();
+                            updateTagsList();
+                            alert('Backup erfolgreich wiederhergestellt!');
+                        }
+                    } else {
+                        alert('Ungültiges Backup-Format.');
+                    }
+                } catch (error) {
+                    alert('Fehler beim Laden des Backups.');
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        function exportAllData() {
+            // Create comprehensive export with all data
+            const exportData = {
+                companies: crmData.companies,
+                reminders: crmData.reminders,
+                tags: crmData.tags,
+                companyFields: crmData.companyFields,
+                contactFields: crmData.contactFields,
+                exportDate: new Date().toISOString(),
+                statistics: {
+                    totalCompanies: crmData.companies.length,
+                    totalContacts: crmData.companies.reduce((sum, c) => sum + (c.contacts || []).length, 0),
+                    totalReminders: crmData.reminders.length,
+                    totalTags: crmData.tags.length
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crm-complete-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetReminders() {
+            if (confirm('Möchten Sie wirklich alle Erinnerungen löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+                crmData.reminders = [];
+                CRMData.save(crmData);
+                updateSystemStats();
+                alert('Alle Erinnerungen wurden gelöscht.');
+            }
+        }
+
+        function resetCompanies() {
+            if (confirm('Möchten Sie wirklich alle Unternehmen und Kontakte löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+                crmData.companies = [];
+                crmData.reminders = []; // Also remove reminders as they reference companies
+                CRMData.save(crmData);
+                updateSystemStats();
+                alert('Alle Unternehmen und zugehörigen Daten wurden gelöscht.');
+            }
+        }
+
+        function resetAllData() {
+            if (confirm('Möchten Sie wirklich ALLE Daten löschen und das System auf die Standardkonfiguration zurücksetzen? Diese Aktion kann NICHT rückgängig gemacht werden!')) {
+                if (confirm('Sind Sie ABSOLUT SICHER? Alle Unternehmen, Kontakte, Erinnerungen und benutzerdefinierten Felder gehen verloren!')) {
+                    crmData = CRMData.getDefaultData();
+                    CRMData.save(crmData);
+                    updateSystemStats();
+                    updateFieldsList();
+                    updateTagsList();
+                    alert('System wurde vollständig zurückgesetzt.');
+                }
+            }
+        }
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Event listeners
+        document.getElementById('tag-name-input').addEventListener('input', updateTagPreview);
+        document.getElementById('tag-color-input').addEventListener('change', updateTagPreview);
+
+        // Initialize
+        window.onload = function() {
+            updateReminderCount();
+            updateFieldsList();
+            updateTagsList();
+            updateSystemStats();
+        };
+
+        // Close modals when clicking outside
+        document.getElementById('field-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideFieldModal();
+        });
+
+        document.getElementById('tag-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideTagModal();
+        });
+    </script>
+</body>
+</html>

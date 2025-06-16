@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Suche</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            ring: 2px;
+            ring-color: #bfdbfe;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 20px;
+        }
+        
+        .search-result {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .result-company {
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        
+        .result-company.match {
+            background-color: #eff6ff;
+            border-left-color: #2563eb;
+        }
+        
+        .result-company:hover {
+            background-color: #dbeafe;
+        }
+        
+        .result-company-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .result-company-address {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .result-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .result-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-company {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-all-contacts {
+            background-color: #f3e8ff;
+            color: #7c2d12;
+        }
+        
+        .result-contact {
+            padding: 16px;
+            background-color: #ffffff;
+            border-top: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .result-contact:hover {
+            background-color: #f9fafb;
+        }
+        
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 24px;
+        }
+        
+        .contact-icon {
+            color: #6b7280;
+        }
+        
+        .contact-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .contact-position {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .contact-info {
+            display: flex;
+            gap: 16px;
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .contact-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge-contact-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin: 2px;
+        }
+        
+        .tag-green { background-color: #dcfce7; color: #166534; }
+        .tag-blue { background-color: #dbeafe; color: #1e40af; }
+        .tag-purple { background-color: #f3e8ff; color: #7c2d12; }
+        .tag-orange { background-color: #fed7aa; color: #9a3412; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .search-tips {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .search-tips h4 {
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+        
+        .search-tips ul {
+            color: #92400e;
+            margin-left: 20px;
+        }
+        
+        .search-tips li {
+            margin-bottom: 4px;
+        }
+        
+        .highlight {
+            background-color: #fef08a;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-3,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+                Intelligente Suche
+            </h1>
+            <p style="color: #6b7280;">
+                Durchsuche Unternehmen und Kontakte nach Namen, Positionen und mehr
+            </p>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="search.html" class="nav-button active">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <!-- Search Box -->
+                <div class="card">
+                    <div class="search-box">
+                        <div class="search-icon">🔍</div>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            class="search-input" 
+                            placeholder="Unternehmen oder Kontakte suchen (min. 3 Zeichen)..."
+                            oninput="handleSearch()"
+                        />
+                    </div>
+                    
+                    <!-- Search Tips -->
+                    <div id="search-tips" class="search-tips">
+                        <h4>💡 Such-Tipps:</h4>
+                        <ul>
+                            <li><strong>Unternehmen finden:</strong> Geben Sie den Firmennamen ein</li>
+                            <li><strong>Kontakte finden:</strong> Namen oder Positionen durchsuchen</li>
+                            <li><strong>Intelligente Ergebnisse:</strong> Bei einem Treffer werden alle Kontakte angezeigt</li>
+                            <li><strong>Direkte Navigation:</strong> Klicken Sie auf ein Ergebnis für Details</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div id="search-results">
+                    <!-- Results will be populated here -->
+                </div>
+
+                <!-- Empty States -->
+                <div id="ready-state" class="card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                            Bereit zum Suchen
+                        </h3>
+                        <p style="color: #9ca3af;">
+                            Suchen Sie nach Unternehmen oder Kontaktpersonen
+                        </p>
+                    </div>
+                </div>
+
+                <div id="too-short-state" class="card" style="display: none;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✏️</div>
+                        <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                            Weiter tippen...
+                        </h3>
+                        <p style="color: #9ca3af;">
+                            Geben Sie mindestens 3 Zeichen ein, um zu suchen
+                        </p>
+                    </div>
+                </div>
+
+                <div id="no-results-state" class="card" style="display: none;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🤷</div>
+                        <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                            Keine Ergebnisse gefunden
+                        </h3>
+                        <p style="color: #9ca3af; margin-bottom: 16px;">
+                            Versuchen Sie es mit anderen Suchbegriffen
+                        </p>
+                        <div style="font-size: 14px; color: #6b7280;">
+                            <p>Vorschläge:</p>
+                            <ul style="margin: 8px 0 0 20px;">
+                                <li>Überprüfen Sie die Schreibweise</li>
+                                <li>Verwenden Sie allgemeinere Begriffe</li>
+                                <li>Probieren Sie nur den Vornamen oder Nachnamen</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management (same as previous files)
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+        }
+
+        let crmData = CRMData.load();
+        let searchTimeout;
+
+        // Search functionality
+        function handleSearch() {
+            const searchTerm = document.getElementById('search-input').value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Debounce search to improve performance
+            searchTimeout = setTimeout(() => {
+                performSearch(searchTerm);
+            }, 200);
+        }
+
+        function performSearch(searchTerm) {
+            hideAllStates();
+            
+            if (searchTerm.length === 0) {
+                document.getElementById('ready-state').style.display = 'block';
+                document.getElementById('search-tips').style.display = 'block';
+                return;
+            }
+            
+            if (searchTerm.length < 3) {
+                document.getElementById('too-short-state').style.display = 'block';
+                document.getElementById('search-tips').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('search-tips').style.display = 'none';
+            
+            const results = getSearchResults(searchTerm);
+            
+            if (results.length === 0) {
+                document.getElementById('no-results-state').style.display = 'block';
+                return;
+            }
+            
+            displaySearchResults(results, searchTerm);
+        }
+
+        function getSearchResults(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            const results = [];
+            
+            crmData.companies.forEach(company => {
+                const companyMatches = company.name.toLowerCase().includes(term);
+                const matchingContacts = (company.contacts || []).filter(contact => 
+                    contact.name.toLowerCase().includes(term) || 
+                    (contact.position && contact.position.toLowerCase().includes(term))
+                );
+                
+                if (companyMatches || matchingContacts.length > 0) {
+                    results.push({
+                        company,
+                        companyMatches,
+                        matchingContacts,
+                        showAllContacts: results.length === 0 && companyMatches // Will be updated later
+                    });
+                }
+            });
+            
+            // If only one company is found, show all its contacts
+            if (results.length === 1) {
+                results[0].showAllContacts = true;
+            }
+            
+            return results;
+        }
+
+        function displaySearchResults(results, searchTerm) {
+            const container = document.getElementById('search-results');
+            
+            container.innerHTML = `
+                <div class="card" style="padding: 16px; margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #1f2937;">
+                        Suchergebnisse (${results.length})
+                    </h3>
+                </div>
+                ${results.map(result => createResultHTML(result, searchTerm)).join('')}
+            `;
+            
+            container.style.display = 'block';
+        }
+
+        function createResultHTML(result, searchTerm) {
+            const { company, companyMatches, matchingContacts, showAllContacts } = result;
+            const contactsToShow = showAllContacts ? (company.contacts || []) : matchingContacts;
+            
+            // Get company tags
+            const companyTags = (company.tags || [])
+                .map(tagId => crmData.tags.find(tag => tag.id === tagId))
+                .filter(Boolean);
+            
+            return `
+                <div class="search-result">
+                    <!-- Company Result -->
+                    <div class="result-company ${companyMatches ? 'match' : ''}" 
+                         onclick="navigateToCompany(${company.id})">
+                        <div class="result-company-name">
+                            ${highlightText(company.name, searchTerm)}
+                        </div>
+                        <div class="result-company-address">
+                            ${company.address || 'Keine Adresse angegeben'}
+                        </div>
+                        
+                        <div class="result-badges">
+                            ${companyMatches ? `
+                                <span class="result-badge badge-company">
+                                    🏢 Unternehmen gefunden
+                                </span>
+                            ` : ''}
+                            
+                            ${showAllContacts && company.contacts && company.contacts.length > 0 ? `
+                                <span class="result-badge badge-all-contacts">
+                                    👥 Alle ${company.contacts.length} Kontakte
+                                </span>
+                            ` : ''}
+                            
+                            ${companyTags.map(tag => `
+                                <span class="tag-badge ${tag.color}">${tag.name}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Contacts -->
+                    ${contactsToShow.length > 0 ? `
+                        <div>
+                            ${contactsToShow.map(contact => {
+                                const isMatchingContact = matchingContacts.includes(contact);
+                                return `
+                                    <div class="result-contact" onclick="navigateToCompany(${company.id})">
+                                        <div class="contact-header">
+                                            <span class="contact-icon">👤</span>
+                                            <div style="flex: 1;">
+                                                <div>
+                                                    <span class="contact-name">
+                                                        ${highlightText(contact.name, searchTerm)}
+                                                    </span>
+                                                    ${contact.position ? `
+                                                        <span class="contact-position">
+                                                            - ${highlightText(contact.position, searchTerm)}
+                                                        </span>
+                                                    ` : ''}
+                                                </div>
+                                                
+                                                <div class="contact-info">
+                                                    ${contact.phone ? `
+                                                        <span class="contact-info-item">
+                                                            <span>📞</span>
+                                                            <span>${contact.phone}</span>
+                                                        </span>
+                                                    ` : ''}
+                                                    ${contact.email ? `
+                                                        <span class="contact-info-item">
+                                                            <span>✉️</span>
+                                                            <span>${contact.email}</span>
+                                                        </span>
+                                                    ` : ''}
+                                                    ${contact.mobile ? `
+                                                        <span class="contact-info-item">
+                                                            <span>📱</span>
+                                                            <span>${contact.mobile}</span>
+                                                        </span>
+                                                    ` : ''}
+                                                </div>
+                                                
+                                                ${isMatchingContact ? `
+                                                    <span class="result-badge badge-contact-found" style="margin-top: 4px;">
+                                                        ✓ Kontakt gefunden
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function highlightText(text, searchTerm) {
+            if (!text || !searchTerm) return text;
+            
+            const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function hideAllStates() {
+            document.getElementById('ready-state').style.display = 'none';
+            document.getElementById('too-short-state').style.display = 'none';
+            document.getElementById('no-results-state').style.display = 'none';
+            document.getElementById('search-results').style.display = 'none';
+        }
+
+        function navigateToCompany(companyId) {
+            // Store the selected company ID for the companies page
+            localStorage.setItem('selectedCompanyId', companyId);
+            window.location.href = 'companies.html';
+        }
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateReminderCount();
+            
+            // Check if there are companies to search
+            if (crmData.companies.length === 0) {
+                document.getElementById('search-tips').innerHTML = `
+                    <h4 style="color: #dc2626;">⚠️ Keine Daten zum Durchsuchen</h4>
+                    <p style="color: #dc2626; margin-top: 8px;">
+                        Es sind noch keine Unternehmen vorhanden. 
+                        <a href="companies.html" style="color: #2563eb; text-decoration: underline;">
+                            Fügen Sie zuerst Unternehmen hinzu
+                        </a>, um die Suchfunktion zu nutzen.
+                    </p>
+                `;
+            }
+            
+            // Focus search input
+            document.getElementById('search-input').focus();
+        };
+
+        // Handle Enter key
+        document.getElementById('search-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // If there's exactly one result, navigate to it
+                const searchTerm = this.value.trim();
+                if (searchTerm.length >= 3) {
+                    const results = getSearchResults(searchTerm);
+                    if (results.length === 1) {
+                        navigateToCompany(results[0].company.id);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

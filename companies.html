@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Unternehmen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-4 {
+            grid-column: span 4;
+        }
+        
+        .col-span-8 {
+            grid-column: span 8;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .button-gray {
+            background-color: #6b7280;
+        }
+        
+        .button-gray:hover {
+            background-color: #4b5563;
+        }
+        
+        .company-item {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .company-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .company-item.selected {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        
+        .company-name {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .company-contacts {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .company-activity {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin: 2px;
+        }
+        
+        .tag-green { background-color: #dcfce7; color: #166534; }
+        .tag-blue { background-color: #dbeafe; color: #1e40af; }
+        .tag-purple { background-color: #f3e8ff; color: #7c2d12; }
+        .tag-orange { background-color: #fed7aa; color: #9a3412; }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            ring: 2px;
+            ring-color: #bfdbfe;
+        }
+        
+        .form-input.error {
+            border-color: #dc2626;
+        }
+        
+        .form-error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .contact-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .contact-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .contact-position {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .contact-info {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .icon-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .icon-button:hover {
+            color: #2563eb;
+            background-color: #f3f4f6;
+        }
+        
+        .icon-button.delete:hover {
+            color: #dc2626;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 500px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .sort-select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .info-icon {
+            color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-3,
+            .col-span-4,
+            .col-span-8,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .modal-content {
+                width: 95vw;
+                max-height: 95vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+                Unternehmen verwalten
+            </h1>
+            <p style="color: #6b7280;">
+                Verwalte deine Unternehmen und deren Kontaktpersonen
+            </p>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button active">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <div class="grid grid-cols-12">
+                    <!-- Company List -->
+                    <div class="col-span-4">
+                        <div class="card" style="padding: 0;">
+                            <div style="padding: 16px; border-bottom: 1px solid #f3f4f6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h2 style="font-size: 18px; font-weight: 600;">Unternehmen</h2>
+                                    <button class="button" onclick="showCompanyModal()">
+                                        ➕ Neu
+                                    </button>
+                                </div>
+                                
+                                <!-- Sort Controls -->
+                                <div class="sort-controls">
+                                    <label style="font-size: 14px; color: #6b7280;">Sortierung:</label>
+                                    <select id="sort-select" class="sort-select" onchange="updateCompanyList()">
+                                        <option value="name-asc">Name (A-Z)</option>
+                                        <option value="name-desc">Name (Z-A)</option>
+                                        <option value="lastActivity-desc">Letzte Aktivität</option>
+                                        <option value="createdAt-desc">Erstellungsdatum</option>
+                                        <option value="contactCount-desc">Anzahl Kontakte</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="company-list" style="max-height: 500px; overflow-y: auto;">
+                                <!-- Companies will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Details -->
+                    <div class="col-span-8">
+                        <div id="company-details" class="hidden">
+                            <!-- Company Info -->
+                            <div class="card" style="margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                                    <h2 id="company-title" style="font-size: 20px; font-weight: 600;"></h2>
+                                    <div style="margin-left: auto;">
+                                        <button class="button" onclick="editCompany()" style="margin-right: 8px;">
+                                            ✏️ Bearbeiten
+                                        </button>
+                                        <button class="button" onclick="deleteCompany()" style="background-color: #dc2626;">
+                                            🗑️ Löschen
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="company-info">
+                                    <!-- Company information will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Contacts -->
+                            <div class="card">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h3 style="font-size: 18px; font-weight: 600;">Kontaktpersonen</h3>
+                                    <button class="button button-green" onclick="showContactModal()">
+                                        ➕ Kontakt
+                                    </button>
+                                </div>
+                                
+                                <div id="contacts-list">
+                                    <!-- Contacts will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="no-selection" class="card">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🏢</div>
+                                <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                                    Kein Unternehmen ausgewählt
+                                </h3>
+                                <p style="color: #9ca3af;">
+                                    Wähle ein Unternehmen aus der Liste aus, um Details zu sehen
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Modal -->
+    <div id="company-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" id="company-modal-title">Neues Unternehmen</h3>
+            
+            <form id="company-form">
+                <div id="company-form-fields">
+                    <!-- Dynamic fields will be populated here -->
+                </div>
+                
+                <!-- Tags -->
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <div id="tags-selection">
+                        <!-- Tags will be populated here -->
+                    </div>
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="button" onclick="saveCompany()">Speichern</button>
+                <button class="button button-gray" onclick="hideCompanyModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" id="contact-modal-title">Neuer Kontakt</h3>
+            
+            <form id="contact-form">
+                <div id="contact-form-fields">
+                    <!-- Dynamic fields will be populated here -->
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="button button-green" onclick="saveContact()">Speichern</button>
+                <button class="button button-gray" onclick="hideContactModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management (same as index.html)
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+            
+            static getCurrentTimestamp() {
+                return new Date().toISOString();
+            }
+            
+            static formatTimestamp(timestamp) {
+                return new Date(timestamp).toLocaleString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        let crmData = CRMData.load();
+        let selectedCompanyId = null;
+        let editingCompany = null;
+        let editingContact = null;
+        let validationErrors = {};
+
+        // Company Management
+        function updateCompanyList() {
+            const container = document.getElementById('company-list');
+            const sortValue = document.getElementById('sort-select').value;
+            const [field, direction] = sortValue.split('-');
+            
+            let sortedCompanies = [...crmData.companies];
+            
+            // Add computed fields
+            sortedCompanies = sortedCompanies.map(company => ({
+                ...company,
+                contactCount: (company.contacts || []).length,
+                lastActivity: company.lastActivity || company.createdAt
+            }));
+            
+            // Sort
+            sortedCompanies.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(field) {
+                    case 'name':
+                        aVal = a.name.toLowerCase();
+                        bVal = b.name.toLowerCase();
+                        break;
+                    case 'lastActivity':
+                        aVal = new Date(a.lastActivity);
+                        bVal = new Date(b.lastActivity);
+                        break;
+                    case 'createdAt':
+                        aVal = new Date(a.createdAt);
+                        bVal = new Date(b.createdAt);
+                        break;
+                    case 'contactCount':
+                        aVal = a.contactCount;
+                        bVal = b.contactCount;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                } else {
+                    return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                }
+            });
+            
+            if (sortedCompanies.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🏢</div>
+                        <p>Keine Unternehmen vorhanden</p>
+                        <button class="button" onclick="showCompanyModal()" style="margin-top: 16px;">
+                            Erstes Unternehmen hinzufügen
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sortedCompanies.map(company => {
+                const companyTags = (company.tags || [])
+                    .map(tagId => crmData.tags.find(tag => tag.id === tagId))
+                    .filter(Boolean);
+                
+                return `
+                    <div class="company-item ${selectedCompanyId === company.id ? 'selected' : ''}" 
+                         onclick="selectCompany(${company.id})">
+                        <div style="display: flex; justify-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div class="company-name">${company.name}</div>
+                                <div class="company-contacts">${company.contactCount} Kontakte</div>
+                                
+                                ${companyTags.length > 0 ? `
+                                    <div style="margin: 8px 0;">
+                                        ${companyTags.map(tag => `
+                                            <span class="tag-badge ${tag.color}">${tag.name}</span>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="company-activity">
+                                    Letzte Aktivität: ${CRMData.formatTimestamp(company.lastActivity)}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <button class="icon-button" onclick="event.stopPropagation(); editCompanyInline(${company.id})">
+                                    ✏️
+                                </button>
+                                <button class="icon-button delete" onclick="event.stopPropagation(); deleteCompanyInline(${company.id})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectCompany(companyId) {
+            selectedCompanyId = companyId;
+            updateCompanyList();
+            showCompanyDetails();
+        }
+
+        function showCompanyDetails() {
+            const company = crmData.companies.find(c => c.id === selectedCompanyId);
+            if (!company) return;
+            
+            document.getElementById('no-selection').classList.add('hidden');
+            document.getElementById('company-details').classList.remove('hidden');
+            
+            document.getElementById('company-title').textContent = company.name;
+            
+            // Show company info
+            const activeFields = crmData.companyFields.filter(field => field.active).sort((a, b) => a.order - b.order);
+            const companyInfo = document.getElementById('company-info');
+            
+            companyInfo.innerHTML = activeFields.map(field => {
+                const value = company[field.name];
+                if (!value) return '';
+                
+                let icon;
+                switch(field.name) {
+                    case 'address': icon = '📍'; break;
+                    case 'phone': icon = '📞'; break;
+                    case 'email': icon = '✉️'; break;
+                    case 'website': icon = '🌐'; break;
+                    default: icon = '📄';
+                }
+                
+                if (field.type === 'textarea') {
+                    return `
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-weight: 500; margin-bottom: 8px;">${icon} ${field.label}:</div>
+                            <div style="background-color: #f9fafb; padding: 12px; border-radius: 6px; white-space: pre-wrap;">${value}</div>
+                        </div>
+                    `;
+                } else if (field.type === 'url') {
+                    return `
+                        <div class="info-row">
+                            <span class="info-icon">${icon}</span>
+                            <span><strong>${field.label}:</strong> <a href="${value}" target="_blank" style="color: #2563eb;">${value}</a></span>
+                        </div>
+                    `;
+                } else if (field.type === 'email') {
+                    return `
+                        <div class="info-row">
+                            <span class="info-icon">${icon}</span>
+                            <span><strong>${field.label}:</strong> <a href="mailto:${value}" style="color: #2563eb;">${value}</a></span>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="info-row">
+                            <span class="info-icon">${icon}</span>
+                            <span><strong>${field.label}:</strong> ${value}</span>
+                        </div>
+                    `;
+                }
+            }).filter(Boolean).join('');
+            
+            // Show tags
+            const companyTags = (company.tags || [])
+                .map(tagId => crmData.tags.find(tag => tag.id === tagId))
+                .filter(Boolean);
+            
+            if (companyTags.length > 0) {
+                companyInfo.innerHTML += `
+                    <div style="margin-top: 16px;">
+                        <div style="font-weight: 500; margin-bottom: 8px;">🏷️ Tags:</div>
+                        <div>
+                            ${companyTags.map(tag => `
+                                <span class="tag-badge ${tag.color}">${tag.name}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            updateContactsList();
+        }
+
+        function updateContactsList() {
+            const company = crmData.companies.find(c => c.id === selectedCompanyId);
+            if (!company) return;
+            
+            const container = document.getElementById('contacts-list');
+            const contacts = company.contacts || [];
+            
+            if (contacts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="color: #6b7280;">Keine Kontakte vorhanden</p>
+                        <button class="button button-green" onclick="showContactModal()" style="margin-top: 12px;">
+                            Ersten Kontakt hinzufügen
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const activeFields = crmData.contactFields.filter(field => field.active).sort((a, b) => a.order - b.order);
+            
+            container.innerHTML = contacts.map(contact => `
+                <div class="contact-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div class="contact-name">${contact.name}</div>
+                            <div class="contact-position">${contact.position || ''}</div>
+                            
+                            ${activeFields.filter(field => field.name !== 'name' && field.name !== 'position' && contact[field.name]).map(field => {
+                                let icon;
+                                switch(field.name) {
+                                    case 'phone': icon = '📞'; break;
+                                    case 'email': icon = '✉️'; break;
+                                    case 'mobile': icon = '📱'; break;
+                                    default: icon = '📄';
+                                }
+                                
+                                if (field.type === 'email') {
+                                    return `
+                                        <div class="contact-info">
+                                            <span>${icon}</span>
+                                            <a href="mailto:${contact[field.name]}" style="color: #2563eb;">${contact[field.name]}</a>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="contact-info">
+                                            <span>${icon}</span>
+                                            <span>${contact[field.name]}</span>
+                                        </div>
+                                    `;
+                                }
+                            }).join('')}
+                            
+                            ${contact.createdAt ? `
+                                <div style="font-size: 12px; color: #9ca3af; margin-top: 8px;">
+                                    Erstellt: ${CRMData.formatTimestamp(contact.createdAt)}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="contact-actions">
+                            <button class="icon-button" onclick="editContactInline(${contact.id})">
+                                ✏️
+                            </button>
+                            <button class="icon-button delete" onclick="deleteContact(${contact.id})">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal functions
+        function showCompanyModal() {
+            editingCompany = null;
+            validationErrors = {};
+            document.getElementById('company-modal-title').textContent = 'Neues Unternehmen';
+            generateCompanyForm();
+            document.getElementById('company-modal').classList.remove('hidden');
+        }
+
+        function hideCompanyModal() {
+            document.getElementById('company-modal').classList.add('hidden');
+            validationErrors = {};
+        }
+
+        function showContactModal() {
+            editingContact = null;
+            validationErrors = {};
+            document.getElementById('contact-modal-title').textContent = 'Neuer Kontakt';
+            generateContactForm();
+            document.getElementById('contact-modal').classList.remove('hidden');
+        }
+
+        function hideContactModal() {
+            document.getElementById('contact-modal').classList.add('hidden');
+            validationErrors = {};
+        }
+
+        function generateCompanyForm() {
+            const container = document.getElementById('company-form-fields');
+            const activeFields = crmData.companyFields.filter(field => field.active).sort((a, b) => a.order - b.order);
+            
+            container.innerHTML = activeFields.map(field => {
+                const value = editingCompany ? (editingCompany[field.name] || '') : '';
+                const hasError = validationErrors[field.name];
+                const requiredMark = field.required ? ' *' : '';
+                
+                if (field.type === 'textarea') {
+                    return `
+                        <div class="form-group">
+                            <label class="form-label">${field.label}${requiredMark}</label>
+                            <textarea 
+                                id="field-${field.name}" 
+                                class="form-input form-textarea ${hasError ? 'error' : ''}"
+                                placeholder="${field.label}${requiredMark}"
+                            >${value}</textarea>
+                            ${hasError ? `<div class="form-error">${validationErrors[field.name]}</div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="form-group">
+                            <label class="form-label">${field.label}${requiredMark}</label>
+                            <input 
+                                type="${field.type}" 
+                                id="field-${field.name}" 
+                                class="form-input ${hasError ? 'error' : ''}"
+                                placeholder="${field.label}${requiredMark}"
+                                value="${value}"
+                            />
+                            ${hasError ? `<div class="form-error">${validationErrors[field.name]}</div>` : ''}
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            // Generate tags selection
+            const tagsContainer = document.getElementById('tags-selection');
+            const selectedTags = editingCompany ? (editingCompany.tags || []) : [];
+            
+            tagsContainer.innerHTML = crmData.tags.map(tag => `
+                <label style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <input 
+                        type="checkbox" 
+                        value="${tag.id}" 
+                        ${selectedTags.includes(tag.id) ? 'checked' : ''}
+                        style="margin-right: 8px;"
+                    />
+                    <span class="tag-badge ${tag.color}">${tag.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function generateContactForm() {
+            const container = document.getElementById('contact-form-fields');
+            const activeFields = crmData.contactFields.filter(field => field.active).sort((a, b) => a.order - b.order);
+            
+            container.innerHTML = activeFields.map(field => {
+                const value = editingContact ? (editingContact[field.name] || '') : '';
+                const hasError = validationErrors[field.name];
+                const requiredMark = field.required ? ' *' : '';
+                
+                return `
+                    <div class="form-group">
+                        <label class="form-label">${field.label}${requiredMark}</label>
+                        <input 
+                            type="${field.type}" 
+                            id="contact-field-${field.name}" 
+                            class="form-input ${hasError ? 'error' : ''}"
+                            placeholder="${field.label}${requiredMark}"
+                            value="${value}"
+                        />
+                        ${hasError ? `<div class="form-error">${validationErrors[field.name]}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function validateForm(formData, fields) {
+            const errors = {};
+            const activeFields = fields.filter(field => field.active);
+            
+            activeFields.forEach(field => {
+                const value = formData[field.name];
+                
+                if (field.required && (!value || value.trim() === '')) {
+                    errors[field.name] = `${field.label} ist ein Pflichtfeld`;
+                }
+                
+                if (value && field.type === 'email') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        errors[field.name] = 'Ungültige E-Mail-Adresse';
+                    }
+                }
+                
+                if (value && field.type === 'url') {
+                    try {
+                        new URL(value);
+                    } catch {
+                        errors[field.name] = 'Ungültige URL';
+                    }
+                }
+            });
+            
+            return errors;
+        }
+
+        function saveCompany() {
+            const formData = {};
+            const activeFields = crmData.companyFields.filter(field => field.active);
+            
+            // Collect form data
+            activeFields.forEach(field => {
+                const element = document.getElementById(`field-${field.name}`);
+                formData[field.name] = element.value.trim();
+            });
+            
+            // Collect tags
+            const selectedTags = Array.from(document.querySelectorAll('#tags-selection input[type="checkbox"]:checked'))
+                .map(cb => parseInt(cb.value));
+            formData.tags = selectedTags;
+            
+            // Validate
+            validationErrors = validateForm(formData, crmData.companyFields);
+            if (Object.keys(validationErrors).length > 0) {
+                generateCompanyForm();
+                return;
+            }
+            
+            const timestamp = CRMData.getCurrentTimestamp();
+            
+            if (editingCompany) {
+                // Update existing company
+                const index = crmData.companies.findIndex(c => c.id === editingCompany.id);
+                crmData.companies[index] = {
+                    ...crmData.companies[index],
+                    ...formData,
+                    lastActivity: timestamp
+                };
+            } else {
+                // Create new company
+                const newCompany = {
+                    id: Date.now(),
+                    ...formData,
+                    contacts: [],
+                    createdAt: timestamp,
+                    lastActivity: timestamp
+                };
+                crmData.companies.push(newCompany);
+                selectedCompanyId = newCompany.id;
+            }
+            
+            CRMData.save(crmData);
+            hideCompanyModal();
+            updateCompanyList();
+            if (selectedCompanyId) {
+                showCompanyDetails();
+            }
+            updateReminderCount();
+        }
+
+        function saveContact() {
+            if (!selectedCompanyId) return;
+            
+            const formData = {};
+            const activeFields = crmData.contactFields.filter(field => field.active);
+            
+            // Collect form data
+            activeFields.forEach(field => {
+                const element = document.getElementById(`contact-field-${field.name}`);
+                formData[field.name] = element.value.trim();
+            });
+            
+            // Validate
+            validationErrors = validateForm(formData, crmData.contactFields);
+            if (Object.keys(validationErrors).length > 0) {
+                generateContactForm();
+                return;
+            }
+            
+            const timestamp = CRMData.getCurrentTimestamp();
+            const companyIndex = crmData.companies.findIndex(c => c.id === selectedCompanyId);
+            
+            if (editingContact) {
+                // Update existing contact
+                const contactIndex = crmData.companies[companyIndex].contacts.findIndex(c => c.id === editingContact.id);
+                crmData.companies[companyIndex].contacts[contactIndex] = {
+                    ...editingContact,
+                    ...formData
+                };
+            } else {
+                // Create new contact
+                const newContact = {
+                    id: Date.now(),
+                    ...formData,
+                    createdAt: timestamp
+                };
+                crmData.companies[companyIndex].contacts.push(newContact);
+            }
+            
+            // Update company last activity
+            crmData.companies[companyIndex].lastActivity = timestamp;
+            
+            CRMData.save(crmData);
+            hideContactModal();
+            updateCompanyList();
+            updateContactsList();
+        }
+
+        // Inline edit functions
+        function editCompanyInline(companyId) {
+            editingCompany = crmData.companies.find(c => c.id === companyId);
+            document.getElementById('company-modal-title').textContent = 'Unternehmen bearbeiten';
+            generateCompanyForm();
+            document.getElementById('company-modal').classList.remove('hidden');
+        }
+
+        function editContactInline(contactId) {
+            const company = crmData.companies.find(c => c.id === selectedCompanyId);
+            editingContact = company.contacts.find(c => c.id === contactId);
+            document.getElementById('contact-modal-title').textContent = 'Kontakt bearbeiten';
+            generateContactForm();
+            document.getElementById('contact-modal').classList.remove('hidden');
+        }
+
+        function editCompany() {
+            editCompanyInline(selectedCompanyId);
+        }
+
+        function deleteCompanyInline(companyId) {
+            if (confirm('Möchten Sie dieses Unternehmen wirklich löschen?')) {
+                crmData.companies = crmData.companies.filter(c => c.id !== companyId);
+                crmData.reminders = crmData.reminders.filter(r => r.companyId !== companyId);
+                
+                if (selectedCompanyId === companyId) {
+                    selectedCompanyId = null;
+                    document.getElementById('company-details').classList.add('hidden');
+                    document.getElementById('no-selection').classList.remove('hidden');
+                }
+                
+                CRMData.save(crmData);
+                updateCompanyList();
+                updateReminderCount();
+            }
+        }
+
+        function deleteCompany() {
+            deleteCompanyInline(selectedCompanyId);
+        }
+
+        function deleteContact(contactId) {
+            if (confirm('Möchten Sie diesen Kontakt wirklich löschen?')) {
+                const companyIndex = crmData.companies.findIndex(c => c.id === selectedCompanyId);
+                crmData.companies[companyIndex].contacts = crmData.companies[companyIndex].contacts.filter(c => c.id !== contactId);
+                
+                // Update company last activity
+                crmData.companies[companyIndex].lastActivity = CRMData.getCurrentTimestamp();
+                
+                CRMData.save(crmData);
+                updateCompanyList();
+                updateContactsList();
+            }
+        }
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateCompanyList();
+            updateReminderCount();
+        };
+
+        // Close modals when clicking outside
+        document.getElementById('company-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideCompanyModal();
+        });
+
+        document.getElementById('contact-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideContactModal();
+        });
+    </script>
+</body>
+</html>

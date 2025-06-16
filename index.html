@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #6b7280;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .col-span-6 {
+            grid-column: span 6;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .icon-blue { background-color: #2563eb; }
+        .icon-green { background-color: #059669; }
+        .icon-purple { background-color: #7c3aed; }
+        .icon-red { background-color: #dc2626; }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        
+        .activity-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .activity-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .reminder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        
+        .reminder-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .reminder-item.overdue {
+            background-color: #fef2f2;
+        }
+        
+        .reminder-item.overdue:hover {
+            background-color: #fee2e2;
+        }
+        
+        .reminder-title {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .reminder-company {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .reminder-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .tag-stat {
+            text-align: center;
+        }
+        
+        .tag-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .tag-green { background-color: #dcfce7; color: #166534; }
+        .tag-blue { background-color: #dbeafe; color: #1e40af; }
+        .tag-purple { background-color: #f3e8ff; color: #7c2d12; }
+        .tag-orange { background-color: #fed7aa; color: #9a3412; }
+        
+        .tag-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .tag-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 400px;
+            max-width: 90vw;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .export-option:hover {
+            background-color: #f9fafb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .space-y-6 > * + * {
+            margin-top: 24px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .col-span-3,
+            .col-span-9,
+            .col-span-6 {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>CRM System</h1>
+                    <p>Verwalte deine Unternehmen, Kontakte und Erinnerungen</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="button" onclick="showExportModal()">
+                        📊 Export
+                    </button>
+                    <label class="button button-green" style="cursor: pointer;">
+                        ➕ Import
+                        <input type="file" accept=".json" onchange="importData(this)" style="display: none;">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button active">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <div class="space-y-6">
+                    <!-- Stats Overview -->
+                    <div class="grid grid-cols-4">
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">Unternehmen</div>
+                                <div class="stat-number" id="total-companies">0</div>
+                            </div>
+                            <div class="icon icon-blue">🏢</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">Kontakte</div>
+                                <div class="stat-number" id="total-contacts">0</div>
+                            </div>
+                            <div class="icon icon-green">👤</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">Offene Erinnerungen</div>
+                                <div class="stat-number" id="total-reminders">0</div>
+                            </div>
+                            <div class="icon icon-purple">📅</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div>
+                                <div class="stat-label">Überfällige Tasks</div>
+                                <div class="stat-number" id="overdue-reminders">0</div>
+                            </div>
+                            <div class="icon icon-red">⚠️</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-12">
+                        <!-- Recent Activities -->
+                        <div class="col-span-6">
+                            <div class="card">
+                                <h3 class="section-title">📈 Letzte Aktivitäten</h3>
+                                <div id="recent-activities">
+                                    <div class="empty-state">
+                                        <p>Keine Aktivitäten vorhanden</p>
+                                        <p style="font-size: 12px; margin-top: 8px;">
+                                            <a href="companies.html" style="color: #2563eb;">Erstes Unternehmen hinzufügen</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Reminders -->
+                        <div class="col-span-6">
+                            <div class="card">
+                                <h3 class="section-title">⏰ Anstehende Termine</h3>
+                                <div id="upcoming-reminders">
+                                    <div class="empty-state">
+                                        <p>Keine anstehenden Termine</p>
+                                        <p style="font-size: 12px; margin-top: 8px;">
+                                            <a href="reminders.html" style="color: #2563eb;">Erste Erinnerung erstellen</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tag Statistics -->
+                    <div class="card">
+                        <h3 class="section-title">🏷️ Tag-Verteilung</h3>
+                        <div id="tag-stats" class="grid grid-cols-4">
+                            <div class="empty-state" style="grid-column: span 4;">
+                                <p>Keine Tags konfiguriert</p>
+                                <p style="font-size: 12px; margin-top: 8px;">
+                                    <a href="admin.html" style="color: #2563eb;">Tags im Admin-Bereich erstellen</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">Daten exportieren</h3>
+            <p style="color: #6b7280; margin-bottom: 24px;">Wählen Sie das gewünschte Export-Format:</p>
+            
+            <div class="export-option" onclick="exportJSON()">
+                <div style="font-size: 20px;">📄</div>
+                <div>
+                    <div style="font-weight: 500;">JSON Export</div>
+                    <div style="font-size: 12px; color: #6b7280;">Komplettes Backup aller Daten</div>
+                </div>
+            </div>
+            
+            <div class="export-option" onclick="exportCSV()">
+                <div style="font-size: 20px;">📊</div>
+                <div>
+                    <div style="font-weight: 500;">CSV Export</div>
+                    <div style="font-size: 12px; color: #6b7280;">3 separate Dateien für Excel</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 24px;">
+                <button class="button" onclick="hideExportModal()" style="width: 100%; background-color: #6b7280;">
+                    Abbrechen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        // Merge with default data to ensure all fields exist
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+            
+            static getCurrentTimestamp() {
+                return new Date().toISOString();
+            }
+            
+            static formatTimestamp(timestamp) {
+                return new Date(timestamp).toLocaleString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        let crmData = CRMData.load();
+
+        // Dashboard functions
+        function updateDashboard() {
+            const totalContacts = crmData.companies.reduce((sum, company) => sum + (company.contacts || []).length, 0);
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            const overdueReminders = crmData.reminders.filter(r => 
+                !r.completed && new Date(r.date + ' ' + r.time) < new Date()
+            ).length;
+
+            document.getElementById('total-companies').textContent = crmData.companies.length;
+            document.getElementById('total-contacts').textContent = totalContacts;
+            document.getElementById('total-reminders').textContent = activeReminders;
+            document.getElementById('overdue-reminders').textContent = overdueReminders;
+            document.getElementById('reminder-count').textContent = activeReminders;
+
+            updateRecentActivities();
+            updateUpcomingReminders();
+            updateTagStats();
+        }
+
+        function updateRecentActivities() {
+            const container = document.getElementById('recent-activities');
+            const recentActivities = crmData.companies
+                .filter(c => c.lastActivity)
+                .sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity))
+                .slice(0, 5);
+
+            if (recentActivities.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Keine Aktivitäten vorhanden</p>
+                        <p style="font-size: 12px; margin-top: 8px;">
+                            <a href="companies.html" style="color: #2563eb;">Erstes Unternehmen hinzufügen</a>
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recentActivities.map(company => `
+                <div class="activity-item" onclick="window.location.href='companies.html'">
+                    <div class="icon icon-blue" style="width: 24px; height: 24px; font-size: 12px;">🏢</div>
+                    <div>
+                        <div class="activity-name">${company.name}</div>
+                        <div class="activity-time">${CRMData.formatTimestamp(company.lastActivity)}</div>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <div style="color: #059669;">✓</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateUpcomingReminders() {
+            const container = document.getElementById('upcoming-reminders');
+            const upcomingReminders = crmData.reminders
+                .filter(r => !r.completed)
+                .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
+                .slice(0, 5);
+
+            if (upcomingReminders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Keine anstehenden Termine</p>
+                        <p style="font-size: 12px; margin-top: 8px;">
+                            <a href="reminders.html" style="color: #2563eb;">Erste Erinnerung erstellen</a>
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = upcomingReminders.map(reminder => {
+                const company = crmData.companies.find(c => c.id === reminder.companyId);
+                const isOverdue = new Date(reminder.date + ' ' + reminder.time) < new Date();
+                return `
+                    <div class="reminder-item ${isOverdue ? 'overdue' : ''}" onclick="window.location.href='reminders.html'">
+                        <div class="icon icon-purple" style="width: 24px; height: 24px; font-size: 12px;">📅</div>
+                        <div>
+                            <div class="reminder-title">${reminder.title}</div>
+                            <div class="reminder-company">${company?.name || 'Unbekanntes Unternehmen'}</div>
+                            <div class="reminder-date">${new Date(reminder.date).toLocaleDateString('de-DE')} um ${reminder.time}</div>
+                        </div>
+                        ${isOverdue ? '<div style="margin-left: auto; color: #dc2626;">⚠️</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateTagStats() {
+            const container = document.getElementById('tag-stats');
+            
+            if (!crmData.tags || crmData.tags.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: span 4;">
+                        <p>Keine Tags konfiguriert</p>
+                        <p style="font-size: 12px; margin-top: 8px;">
+                            <a href="admin.html" style="color: #2563eb;">Tags im Admin-Bereich erstellen</a>
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tagStats = crmData.tags.map(tag => ({
+                ...tag,
+                count: crmData.companies.filter(c => c.tags && c.tags.includes(tag.id)).length
+            }));
+
+            container.className = 'grid grid-cols-4';
+            container.innerHTML = tagStats.map(tag => `
+                <div class="tag-stat">
+                    <div class="tag-badge ${tag.color}">${tag.name}</div>
+                    <div class="tag-count">${tag.count}</div>
+                    <div class="tag-label">Unternehmen</div>
+                </div>
+            `).join('');
+        }
+
+        // Export functions
+        function showExportModal() {
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
+
+        function hideExportModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        function exportJSON() {
+            const data = {
+                ...crmData,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `crm-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            hideExportModal();
+        }
+
+        function exportCSV() {
+            // Export Companies
+            const companiesCSV = [
+                ['ID', 'Name', 'Adresse', 'Telefon', 'Email', 'Website', 'Notizen'],
+                ...crmData.companies.map(c => [c.id, c.name, c.address || '', c.phone || '', c.email || '', c.website || '', c.notes || ''])
+            ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+
+            // Export Contacts
+            const contactsCSV = [
+                ['ID', 'Unternehmen_ID', 'Name', 'Position', 'Telefon', 'Email', 'Mobil'],
+                ...crmData.companies.flatMap(c => 
+                    (c.contacts || []).map(contact => [contact.id, c.id, contact.name, contact.position || '', contact.phone || '', contact.email || '', contact.mobile || ''])
+                )
+            ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+
+            // Export Reminders
+            const remindersCSV = [
+                ['ID', 'Unternehmen_ID', 'Kontakt_ID', 'Titel', 'Datum', 'Zeit', 'Notizen', 'Erledigt'],
+                ...crmData.reminders.map(r => [r.id, r.companyId, r.contactId || '', r.title, r.date, r.time, r.notes || '', r.completed])
+            ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+
+            // Download files
+            [
+                { name: 'unternehmen', data: companiesCSV },
+                { name: 'kontakte', data: contactsCSV },
+                { name: 'erinnerungen', data: remindersCSV }
+            ].forEach(({ name, data }) => {
+                const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `crm-${name}-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            
+            hideExportModal();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.companies !== undefined && data.reminders !== undefined) {
+                        crmData = { ...CRMData.getDefaultData(), ...data };
+                        CRMData.save(crmData);
+                        updateDashboard();
+                        alert('Import erfolgreich! CRM-Daten wurden geladen.');
+                    } else {
+                        alert('Ungültiges Dateiformat. Bitte eine gültige CRM-Backup-Datei verwenden.');
+                    }
+                } catch (error) {
+                    alert('Fehler beim Import. Bitte überprüfen Sie die Datei.');
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        // Initialize dashboard on load
+        window.onload = function() {
+            // Initialize with sample data if empty
+            if (crmData.companies.length === 0 && crmData.reminders.length === 0) {
+                crmData.companies = [
+                    {
+                        id: 1,
+                        name: "Beispiel GmbH",
+                        address: "Musterstraße 123, 1234 Wien",
+                        phone: "+43 1 234567",
+                        email: "office@beispiel.at",
+                        website: "https://beispiel.at",
+                        notes: "Wichtiger Kunde seit 2020",
+                        tags: [1, 3],
+                        createdAt: "2024-01-15T10:30:00Z",
+                        lastActivity: "2025-05-28T14:20:00Z",
+                        contacts: [
+                            {
+                                id: 1,
+                                name: "Max Mustermann",
+                                position: "Geschäftsführer",
+                                phone: "+43 1 234567",
+                                email: "max@beispiel.at",
+                                mobile: "+43 664 1234567",
+                                createdAt: "2024-01-15T10:35:00Z"
+                            }
+                        ]
+                    }
+                ];
+                
+                crmData.reminders = [
+                    {
+                        id: 1,
+                        companyId: 1,
+                        contactId: 1,
+                        title: "Nachfassen wegen Angebot",
+                        date: "2025-06-05",
+                        time: "14:00",
+                        notes: "Angebot für neue Software wurde letzte Woche gesendet",
+                        completed: false,
+                        createdAt: "2025-05-25T09:15:00Z"
+                    }
+                ];
+                
+                CRMData.save(crmData);
+            }
+            
+            updateDashboard();
+        };
+
+        // Close modal when clicking outside
+        document.getElementById('export-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideExportModal();
+            }
+        });
+    </script>
+</body>
+</html>
