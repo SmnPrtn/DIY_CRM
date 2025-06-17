@@ -791,7 +791,7 @@ window.onload = initializeCRM;
                     const data = JSON.parse(e.target.result);
                     if (data.companies !== undefined && data.reminders !== undefined) {
                         crmData = { ...CRMData.getDefaultData(), ...data };
-                        CRMData.save(crmData);
+                        await CRMData.save(crmData);
                         updateDashboard();
                         alert('Import erfolgreich! CRM-Daten wurden geladen.');
                     } else {
@@ -849,7 +849,7 @@ window.onload = initializeCRM;
                     }
                 ];
                 
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
             }
             
             updateDashboard();
