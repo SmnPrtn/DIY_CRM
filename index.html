@@ -582,7 +582,22 @@
             }
         }
 
-        let crmData = CRMData.load();
+        let crmData = null;
+
+// Neue async Initialisierung
+async function initializeCRM() {
+    // Prüfe auf Migration von localStorage
+    await CRMData.migrateFromLocalStorage();
+    
+    // Lade Daten
+    crmData = await CRMData.load();
+    
+    // Starte UI Updates
+    updateDashboard(); // oder andere Update-Funktionen
+}
+
+// Starte CRM wenn Seite geladen ist
+window.onload = initializeCRM;
 
         // Dashboard functions
         function updateDashboard() {
