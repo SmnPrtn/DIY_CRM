@@ -965,7 +965,7 @@ window.onload = initializeCRM;
             const field = fields.find(f => f.id === fieldId);
             if (field) {
                 field.active = !field.active;
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateFieldsList();
             }
         }
@@ -1065,7 +1065,7 @@ window.onload = initializeCRM;
                 fields.push(newField);
             }
             
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
             hideFieldModal();
             
             // Update current view if needed
@@ -1100,7 +1100,7 @@ window.onload = initializeCRM;
             if (confirm(`Möchten Sie das Feld "${field.label}" wirklich löschen?`)) {
                 const index = fields.findIndex(f => f.id === fieldId);
                 fields.splice(index, 1);
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateFieldsList();
             }
         }
@@ -1149,7 +1149,7 @@ window.onload = initializeCRM;
             };
             
             crmData.tags.push(newTag);
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
             
             document.getElementById('quick-tag-name').value = '';
             updateTagsList();
@@ -1216,7 +1216,7 @@ window.onload = initializeCRM;
                 crmData.tags.push(newTag);
             }
             
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
             hideTagModal();
             updateTagsList();
         }
@@ -1253,7 +1253,7 @@ window.onload = initializeCRM;
                 // Remove tag from tags list
                 crmData.tags = crmData.tags.filter(t => t.id !== tagId);
                 
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateTagsList();
             }
         }
@@ -1295,7 +1295,7 @@ window.onload = initializeCRM;
                     if (data.companies !== undefined && data.reminders !== undefined) {
                         if (confirm('Möchten Sie wirklich alle Daten durch das Backup ersetzen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                             crmData = { ...CRMData.getDefaultData(), ...data };
-                            CRMData.save(crmData);
+                            await CRMData.save(crmData);
                             updateSystemStats();
                             updateFieldsList();
                             updateTagsList();
@@ -1341,7 +1341,7 @@ window.onload = initializeCRM;
         function resetReminders() {
             if (confirm('Möchten Sie wirklich alle Erinnerungen löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                 crmData.reminders = [];
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateSystemStats();
                 alert('Alle Erinnerungen wurden gelöscht.');
             }
@@ -1351,7 +1351,7 @@ window.onload = initializeCRM;
             if (confirm('Möchten Sie wirklich alle Unternehmen und Kontakte löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                 crmData.companies = [];
                 crmData.reminders = []; // Also remove reminders as they reference companies
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateSystemStats();
                 alert('Alle Unternehmen und zugehörigen Daten wurden gelöscht.');
             }
@@ -1361,7 +1361,7 @@ window.onload = initializeCRM;
             if (confirm('Möchten Sie wirklich ALLE Daten löschen und das System auf die Standardkonfiguration zurücksetzen? Diese Aktion kann NICHT rückgängig gemacht werden!')) {
                 if (confirm('Sind Sie ABSOLUT SICHER? Alle Unternehmen, Kontakte, Erinnerungen und benutzerdefinierten Felder gehen verloren!')) {
                     crmData = CRMData.getDefaultData();
-                    CRMData.save(crmData);
+                    await CRMData.save(crmData);
                     updateSystemStats();
                     updateFieldsList();
                     updateTagsList();
