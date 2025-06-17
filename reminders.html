@@ -1049,7 +1049,8 @@ window.onload = initializeCRM;
                 crmData.companies[companyIndex].lastActivity = timestamp;
             }
             
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
+
             hideReminderModal();
             updateStatistics();
             updateRemindersList();
@@ -1077,7 +1078,7 @@ window.onload = initializeCRM;
         function deleteReminder(reminderId) {
             if (confirm('Möchten Sie diese Erinnerung wirklich löschen?')) {
                 crmData.reminders = crmData.reminders.filter(r => r.id !== reminderId);
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateStatistics();
                 updateRemindersList();
             }
@@ -1087,7 +1088,7 @@ window.onload = initializeCRM;
             const reminder = crmData.reminders.find(r => r.id === reminderId);
             if (reminder) {
                 reminder.completed = !reminder.completed;
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateStatistics();
                 updateRemindersList();
             }
