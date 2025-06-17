@@ -1070,7 +1070,7 @@ window.onload = initializeCRM;
                 selectedCompanyId = newCompany.id;
             }
             
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
             hideCompanyModal();
             updateCompanyList();
             if (selectedCompanyId) {
@@ -1121,7 +1121,7 @@ window.onload = initializeCRM;
             // Update company last activity
             crmData.companies[companyIndex].lastActivity = timestamp;
             
-            CRMData.save(crmData);
+            await CRMData.save(crmData);
             hideContactModal();
             updateCompanyList();
             updateContactsList();
@@ -1158,7 +1158,7 @@ window.onload = initializeCRM;
                     document.getElementById('no-selection').classList.remove('hidden');
                 }
                 
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateCompanyList();
                 updateReminderCount();
             }
@@ -1176,7 +1176,7 @@ window.onload = initializeCRM;
                 // Update company last activity
                 crmData.companies[companyIndex].lastActivity = CRMData.getCurrentTimestamp();
                 
-                CRMData.save(crmData);
+                await CRMData.save(crmData);
                 updateCompanyList();
                 updateContactsList();
             }
