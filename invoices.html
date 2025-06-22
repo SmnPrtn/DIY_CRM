@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Rechnungen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .icon-blue { background-color: #2563eb; }
+        .icon-green { background-color: #059669; }
+        .icon-purple { background-color: #7c3aed; }
+        .icon-red { background-color: #dc2626; }
+        .icon-yellow { background-color: #d97706; }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .button-gray {
+            background-color: #6b7280;
+        }
+        
+        .button-gray:hover {
+            background-color: #4b5563;
+        }
+        
+        .invoice-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .invoice-card:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .invoice-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .invoice-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+        }
+        
+        .invoice-company {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .invoice-contact {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .invoice-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .invoice-date {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .invoice-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-draft {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .status-sent {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-overdue {
+            background-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        .status-cancelled {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .icon-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .icon-button:hover {
+            color: #2563eb;
+            background-color: #f3f4f6;
+        }
+        
+        .icon-button.delete:hover {
+            color: #dc2626;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .date-input {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 800px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .invoice-detail {
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .invoice-detail:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .detail-value {
+            color: #6b7280;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .items-table th {
+            background-color: #f9fafb;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .items-table td {
+            color: #6b7280;
+        }
+        
+        .total-row {
+            font-weight: 600;
+            color: #1f2937;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .col-span-3,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .date-range {
+                flex-direction: column;
+            }
+            
+            .invoice-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .invoice-meta {
+                flex-wrap: wrap;
+            }
+            
+            .items-table {
+                font-size: 14px;
+            }
+            
+            .items-table th,
+            .items-table td {
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+                        Rechnungen
+                    </h1>
+                    <p style="color: #6b7280;">
+                        Verwalte und verfolge alle deine Rechnungen
+                    </p>
+                </div>
+                <button class="button" onclick="createNewInvoice()">
+                    ➕ Neue Rechnung
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button active">
+                            💰 Rechnungen
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <!-- Statistics -->
+                <div class="grid grid-cols-4" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Offene Rechnungen</div>
+                            <div class="stat-number" id="open-invoices-count">0</div>
+                        </div>
+                        <div class="icon icon-blue">💰</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Überfällige</div>
+                            <div class="stat-number" id="overdue-invoices-count">0</div>
+                        </div>
+                        <div class="icon icon-red">⚠️</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Monatsumsatz</div>
+                            <div class="stat-number" id="monthly-revenue">€0</div>
+                        </div>
+                        <div class="icon icon-green">📈</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Jahresumsatz</div>
+                            <div class="stat-number" id="yearly-revenue">€0</div>
+                        </div>
+                        <div class="icon icon-purple">🏆</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="filters">
+                        <input type="text" id="search-input" class="search-input" placeholder="🔍 Rechnungen durchsuchen...">
+                        
+                        <select id="status-filter" class="filter-select">
+                            <option value="">Alle Status</option>
+                            <option value="draft">Entwurf</option>
+                            <option value="sent">Versendet</option>
+                            <option value="paid">Bezahlt</option>
+                            <option value="overdue">Überfällig</option>
+                            <option value="cancelled">Storniert</option>
+                        </select>
+                        
+                        <select id="company-filter" class="filter-select">
+                            <option value="">Alle Unternehmen</option>
+                        </select>
+                        
+                        <div class="date-range">
+                            <input type="date" id="date-from" class="date-input">
+                            <span style="color: #6b7280;">bis</span>
+                            <input type="date" id="date-to" class="date-input">
+                        </div>
+                        
+                        <select id="sort-filter" class="filter-select">
+                            <option value="date-desc">Neueste zuerst</option>
+                            <option value="date-asc">Älteste zuerst</option>
+                            <option value="amount-desc">Höchster Betrag</option>
+                            <option value="amount-asc">Niedrigster Betrag</option>
+                            <option value="company-asc">Unternehmen A-Z</option>
+                            <option value="status-asc">Nach Status</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Invoices List -->
+                <div class="card">
+                    <div id="invoices-container">
+                        <!-- Invoices will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Detail Modal -->
+    <div id="invoice-detail-modal" class="modal hidden">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 class="modal-title" id="invoice-detail-title">Rechnungsdetails</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="button" onclick="editInvoice()" id="edit-invoice-btn">
+                        ✏️ Bearbeiten
+                    </button>
+                    <button class="button button-gray" onclick="hideInvoiceDetailModal()">
+                        ✕ Schließen
+                    </button>
+                </div>
+            </div>
+            
+            <div id="invoice-detail-content">
+                <!-- Invoice details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management (erweitert um Rechnungen)
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    products: [],
+                    invoices: [], // Neue Rechnungen
+                    invoiceSettings: {
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            invoices: parsed.invoices || [],
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
+                            products: parsed.products || [],
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+            
+            static getCurrentTimestamp() {
+                return new Date().toISOString();
+            }
+            
+            static formatCurrency(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2
+                }).format(amount);
+            }
+            
+            static formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('de-DE');
+            }
+            
+            static generateInvoiceNumber() {
+                const settings = crmData.invoiceSettings;
+                const number = settings.nextInvoiceNumber;
+                settings.nextInvoiceNumber++;
+                return settings.invoiceNumberPrefix + number.toString().padStart(4, '0');
+            }
+        }
+
+        let crmData = CRMData.load();
+        let filteredInvoices = [];
+        let selectedInvoice = null;
+
+        // Invoice Management
+        function updateInvoicesList() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const companyFilter = document.getElementById('company-filter').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            const sortFilter = document.getElementById('sort-filter').value;
+            
+            // Filter invoices
+            filteredInvoices = crmData.invoices.filter(invoice => {
+                const company = crmData.companies.find(c => c.id === invoice.companyId);
+                const companyName = company ? company.name.toLowerCase() : '';
+                
+                const matchesSearch = !searchTerm || 
+                    invoice.invoiceNumber.toLowerCase().includes(searchTerm) ||
+                    companyName.includes(searchTerm) ||
+                    (invoice.notes && invoice.notes.toLowerCase().includes(searchTerm));
+                
+                const matchesStatus = !statusFilter || invoice.status === statusFilter;
+                const matchesCompany = !companyFilter || invoice.companyId.toString() === companyFilter;
+                
+                const invoiceDate = new Date(invoice.date);
+                const matchesDateFrom = !dateFrom || invoiceDate >= new Date(dateFrom);
+                const matchesDateTo = !dateTo || invoiceDate <= new Date(dateTo);
+                
+                return matchesSearch && matchesStatus && matchesCompany && matchesDateFrom && matchesDateTo;
+            });
+            
+            // Sort invoices
+            const [field, direction] = sortFilter.split('-');
+            filteredInvoices.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(field) {
+                    case 'date':
+                        aVal = new Date(a.date);
+                        bVal = new Date(b.date);
+                        break;
+                    case 'amount':
+                        aVal = parseFloat(a.totalGross) || 0;
+                        bVal = parseFloat(b.totalGross) || 0;
+                        break;
+                    case 'company':
+                        const companyA = crmData.companies.find(c => c.id === a.companyId);
+                        const companyB = crmData.companies.find(c => c.id === b.companyId);
+                        aVal = companyA ? companyA.name.toLowerCase() : '';
+                        bVal = companyB ? companyB.name.toLowerCase() : '';
+                        break;
+                    case 'status':
+                        aVal = a.status;
+                        bVal = b.status;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                } else {
+                    return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                }
+            });
+            
+            renderInvoices();
+            updateStatistics();
+            updateCompanyFilter();
+        }
+
+        function renderInvoices() {
+            const container = document.getElementById('invoices-container');
+            
+            if (filteredInvoices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💰</div>
+                        <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                            ${crmData.invoices.length === 0 ? 'Keine Rechnungen vorhanden' : 'Keine Rechnungen gefunden'}
+                        </h3>
+                        <p style="color: #9ca3af; margin-bottom: 16px;">
+                            ${crmData.invoices.length === 0 ? 
+                                'Erstelle deine erste Rechnung' : 
+                                'Versuche andere Suchbegriffe oder Filter'}
+                        </p>
+                        ${crmData.invoices.length === 0 ? `
+                            <button class="button" onclick="createNewInvoice()">
+                                Erste Rechnung erstellen
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredInvoices.map(invoice => {
+                const company = crmData.companies.find(c => c.id === invoice.companyId);
+                const contact = company && invoice.contactId ? 
+                    company.contacts.find(c => c.id === invoice.contactId) : null;
+                
+                const dueDate = new Date(invoice.dueDate);
+                const isOverdue = invoice.status === 'sent' && dueDate < new Date();
+                
+                return `
+                    <div class="invoice-card" onclick="showInvoiceDetail(${invoice.id})">
+                        <div class="invoice-header">
+                            <div>
+                                <div class="invoice-number">${invoice.invoiceNumber}</div>
+                                <div class="invoice-company">${company ? company.name : 'Unbekanntes Unternehmen'}</div>
+                                ${contact ? `<div class="invoice-contact">${contact.name}</div>` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="invoice-amount">${CRMData.formatCurrency(parseFloat(invoice.totalGross))}</div>
+                                <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                                    ${CRMData.formatCurrency(parseFloat(invoice.totalNet))} netto
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-meta">
+                            <span class="status-badge status-${isOverdue ? 'overdue' : invoice.status}">
+                                ${getStatusLabel(isOverdue ? 'overdue' : invoice.status)}
+                            </span>
+                            
+                            <div class="invoice-date">
+                                Datum: ${CRMData.formatDate(invoice.date)}
+                            </div>
+                            
+                            <div class="invoice-date">
+                                Fällig: ${CRMData.formatDate(invoice.dueDate)}
+                            </div>
+                            
+                            <div style="margin-left: auto; font-size: 12px; color: #9ca3af;">
+                                ${invoice.items.length} Position${invoice.items.length !== 1 ? 'en' : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-actions" onclick="event.stopPropagation();">
+                            <button class="icon-button" onclick="editInvoice(${invoice.id})" title="Bearbeiten">
+                                ✏️
+                            </button>
+                            <button class="icon-button" onclick="duplicateInvoice(${invoice.id})" title="Duplizieren">
+                                📋
+                            </button>
+                            <button class="icon-button" onclick="downloadInvoicePDF(${invoice.id})" title="PDF herunterladen">
+                                📄
+                            </button>
+                            <button class="icon-button delete" onclick="deleteInvoice(${invoice.id})" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'draft': 'Entwurf',
+                'sent': 'Versendet',
+                'paid': 'Bezahlt',
+                'overdue': 'Überfällig',
+                'cancelled': 'Storniert'
+            };
+            return labels[status] || status;
+        }
+
+        function updateStatistics() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            const openInvoices = crmData.invoices.filter(i => ['sent', 'overdue'].includes(i.status));
+            const overdueInvoices = crmData.invoices.filter(i => {
+                return i.status === 'sent' && new Date(i.dueDate) < now;
+            });
+            
+            const paidThisMonth = crmData.invoices.filter(i => {
+                const invoiceDate = new Date(i.date);
+                return i.status === 'paid' && 
+                       invoiceDate.getMonth() === currentMonth && 
+                       invoiceDate.getFullYear() === currentYear;
+            });
+            
+            const paidThisYear = crmData.invoices.filter(i => {
+                const invoiceDate = new Date(i.date);
+                return i.status === 'paid' && invoiceDate.getFullYear() === currentYear;
+            });
+            
+            const monthlyRevenue = paidThisMonth.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            const yearlyRevenue = paidThisYear.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            
+            document.getElementById('open-invoices-count').textContent = openInvoices.length;
+            document.getElementById('overdue-invoices-count').textContent = overdueInvoices.length;
+            document.getElementById('monthly-revenue').textContent = CRMData.formatCurrency(monthlyRevenue);
+            document.getElementById('yearly-revenue').textContent = CRMData.formatCurrency(yearlyRevenue);
+        }
+
+        function updateCompanyFilter() {
+            const companyFilter = document.getElementById('company-filter');
+            const currentValue = companyFilter.value;
+            
+            companyFilter.innerHTML = '<option value="">Alle Unternehmen</option>' +
+                crmData.companies.map(company => 
+                    `<option value="${company.id}">${company.name}</option>`
+                ).join('');
+            
+            companyFilter.value = currentValue;
+        }
+
+        function showInvoiceDetail(invoiceId) {
+            selectedInvoice = crmData.invoices.find(i => i.id === invoiceId);
+            if (!selectedInvoice) return;
+            
+            const company = crmData.companies.find(c => c.id === selectedInvoice.companyId);
+            const contact = company && selectedInvoice.contactId ? 
+                company.contacts.find(c => c.id === selectedInvoice.contactId) : null;
+            
+            document.getElementById('invoice-detail-title').textContent = 
+                `Rechnung ${selectedInvoice.invoiceNumber}`;
+            
+            const content = document.getElementById('invoice-detail-content');
+            content.innerHTML = `
+                <div class="invoice-detail">
+                    <div class="detail-row">
+                        <span class="detail-label">Rechnungsnummer:</span>
+                        <span class="detail-value">${selectedInvoice.invoiceNumber}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="status-badge status-${selectedInvoice.status}">
+                            ${getStatusLabel(selectedInvoice.status)}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Kunde:</span>
+                        <span class="detail-value">${company ? company.name : 'Unbekannt'}</span>
+                    </div>
+                    ${contact ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Ansprechpartner:</span>
+                            <span class="detail-value">${contact.name} (${contact.position || 'Position nicht angegeben'})</span>
+                        </div>
+                    ` : ''}
+                    <div class="detail-row">
+                        <span class="detail-label">Rechnungsdatum:</span>
+                        <span class="detail-value">${CRMData.formatDate(selectedInvoice.date)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Fälligkeitsdatum:</span>
+                        <span class="detail-value">${CRMData.formatDate(selectedInvoice.dueDate)}</span>
+                    </div>
+                </div>
+                
+                <div class="invoice-detail">
+                    <h4 style="margin-bottom: 12px;">Rechnungspositionen</h4>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Menge</th>
+                                <th>Einzelpreis</th>
+                                <th>Gesamt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${selectedInvoice.items.map(item => `
+                                <tr>
+                                    <td>
+                                        <strong>${item.productName}</strong>
+                                        ${item.description ? `<br><small style="color: #6b7280;">${item.description}</small>` : ''}
+                                    </td>
+                                    <td>${item.quantity} ${item.unit}</td>
+                                    <td>${CRMData.formatCurrency(parseFloat(item.unitPrice))}</td>
+                                    <td>${CRMData.formatCurrency(parseFloat(item.totalPrice))}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3"><strong>Netto-Summe:</strong></td>
+                                <td class="total-row">${CRMData.formatCurrency(parseFloat(selectedInvoice.totalNet))}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>MwSt (${selectedInvoice.vatRate}%):</strong></td>
+                                <td class="total-row">${CRMData.formatCurrency(parseFloat(selectedInvoice.totalVat))}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>Gesamt-Summe:</strong></td>
+                                <td class="total-row">${CRMData.formatCurrency(parseFloat(selectedInvoice.totalGross))}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                ${selectedInvoice.notes ? `
+                    <div class="invoice-detail">
+                        <h4 style="margin-bottom: 8px;">Notizen</h4>
+                        <p style="color: #6b7280; white-space: pre-wrap;">${selectedInvoice.notes}</p>
+                    </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('invoice-detail-modal').classList.remove('hidden');
+        }
+
+        function hideInvoiceDetailModal() {
+            document.getElementById('invoice-detail-modal').classList.add('hidden');
+            selectedInvoice = null;
+        }
+
+        function createNewInvoice() {
+            window.location.href = 'create-invoice.html';
+        }
+
+        function editInvoice(invoiceId) {
+            if (invoiceId) {
+                window.location.href = `create-invoice.html?edit=${invoiceId}`;
+            } else if (selectedInvoice) {
+                window.location.href = `create-invoice.html?edit=${selectedInvoice.id}`;
+            }
+        }
+
+        function duplicateInvoice(invoiceId) {
+            const invoice = crmData.invoices.find(i => i.id === invoiceId);
+            if (!invoice) return;
+            
+            if (confirm(`Möchten Sie die Rechnung "${invoice.invoiceNumber}" duplizieren?`)) {
+                const newInvoice = {
+                    ...invoice,
+                    id: Date.now(),
+                    invoiceNumber: CRMData.generateInvoiceNumber(),
+                    status: 'draft',
+                    date: new Date().toISOString().split('T')[0],
+                    dueDate: new Date(Date.now() + (crmData.invoiceSettings.defaultPaymentTerms * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+                    createdAt: CRMData.getCurrentTimestamp(),
+                    updatedAt: CRMData.getCurrentTimestamp()
+                };
+                
+                crmData.invoices.push(newInvoice);
+                CRMData.save(crmData);
+                updateInvoicesList();
+            }
+        }
+
+        function downloadInvoicePDF(invoiceId) {
+            // Placeholder for PDF generation
+            alert('PDF-Export wird in der nächsten Version implementiert.');
+        }
+
+        function deleteInvoice(invoiceId) {
+            const invoice = crmData.invoices.find(i => i.id === invoiceId);
+            if (!invoice) return;
+            
+            if (confirm(`Möchten Sie die Rechnung "${invoice.invoiceNumber}" wirklich löschen?`)) {
+                crmData.invoices = crmData.invoices.filter(i => i.id !== invoiceId);
+                CRMData.save(crmData);
+                updateInvoicesList();
+                
+                if (selectedInvoice && selectedInvoice.id === invoiceId) {
+                    hideInvoiceDetailModal();
+                }
+            }
+        }
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', updateInvoicesList);
+        document.getElementById('status-filter').addEventListener('change', updateInvoicesList);
+        document.getElementById('company-filter').addEventListener('change', updateInvoicesList);
+        document.getElementById('date-from').addEventListener('change', updateInvoicesList);
+        document.getElementById('date-to').addEventListener('change', updateInvoicesList);
+        document.getElementById('sort-filter').addEventListener('change', updateInvoicesList);
+
+        // Initialize with sample data if empty
+        function initializeSampleData() {
+            if (crmData.invoices.length === 0 && crmData.companies.length > 0) {
+                const sampleInvoices = [
+                    {
+                        id: 1,
+                        invoiceNumber: 'R-0001',
+                        companyId: crmData.companies[0].id,
+                        contactId: crmData.companies[0].contacts ? crmData.companies[0].contacts[0]?.id : null,
+                        date: '2025-06-15',
+                        dueDate: '2025-07-15',
+                        status: 'sent',
+                        items: [
+                            {
+                                id: 1,
+                                productId: 1,
+                                productName: 'Webdesign-Paket',
+                                description: 'Komplettes Webdesign inkl. Responsive Design',
+                                quantity: 1,
+                                unit: 'Paket',
+                                unitPrice: '1500.00',
+                                vatRate: '19',
+                                totalPrice: '1500.00'
+                            }
+                        ],
+                        totalNet: '1500.00',
+                        totalVat: '285.00',
+                        totalGross: '1785.00',
+                        vatRate: '19',
+                        notes: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                        createdAt: CRMData.getCurrentTimestamp(),
+                        updatedAt: CRMData.getCurrentTimestamp()
+                    },
+                    {
+                        id: 2,
+                        invoiceNumber: 'R-0002',
+                        companyId: crmData.companies[0].id,
+                        contactId: null,
+                        date: '2025-05-20',
+                        dueDate: '2025-06-20',
+                        status: 'paid',
+                        items: [
+                            {
+                                id: 1,
+                                productId: 2,
+                                productName: 'Beratungsstunde',
+                                description: 'IT-Beratung und Strategieentwicklung',
+                                quantity: 8,
+                                unit: 'Stunden',
+                                unitPrice: '120.00',
+                                vatRate: '19',
+                                totalPrice: '960.00'
+                            }
+                        ],
+                        totalNet: '960.00',
+                        totalVat: '182.40',
+                        totalGross: '1142.40',
+                        vatRate: '19',
+                        notes: '',
+                        createdAt: CRMData.getCurrentTimestamp(),
+                        updatedAt: CRMData.getCurrentTimestamp()
+                    }
+                ];
+                
+                crmData.invoices = sampleInvoices;
+                crmData.invoiceSettings.nextInvoiceNumber = 3;
+                CRMData.save(crmData);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            initializeSampleData();
+            updateReminderCount();
+            updateInvoicesList();
+        };
+
+        // Close modal when clicking outside
+        document.getElementById('invoice-detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideInvoiceDetailModal();
+        });
+    </script>
+</body>
+</html>
