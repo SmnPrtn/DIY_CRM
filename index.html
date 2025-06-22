@@ -55,6 +55,10 @@
             grid-template-columns: repeat(4, 1fr);
         }
         
+        .grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        
         .col-span-3 {
             grid-column: span 3;
         }
@@ -116,6 +120,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
         .stat-number {
@@ -128,6 +139,19 @@
             font-size: 14px;
             color: #6b7280;
             margin-bottom: 4px;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .trend-up {
+            color: #059669;
+        }
+        
+        .trend-down {
+            color: #dc2626;
         }
         
         .icon {
@@ -145,6 +169,7 @@
         .icon-green { background-color: #059669; }
         .icon-purple { background-color: #7c3aed; }
         .icon-red { background-color: #dc2626; }
+        .icon-yellow { background-color: #d97706; }
         
         .activity-item {
             display: flex;
@@ -171,6 +196,13 @@
             color: #6b7280;
         }
         
+        .activity-amount {
+            font-size: 14px;
+            font-weight: 500;
+            color: #059669;
+            margin-left: auto;
+        }
+        
         .reminder-item {
             display: flex;
             align-items: center;
@@ -194,6 +226,15 @@
             background-color: #fee2e2;
         }
         
+        .reminder-item.invoice-overdue {
+            background-color: #fff7ed;
+            border-left: 4px solid #ea580c;
+        }
+        
+        .reminder-item.invoice-overdue:hover {
+            background-color: #fed7aa;
+        }
+        
         .reminder-title {
             font-weight: 500;
             color: #1f2937;
@@ -207,6 +248,13 @@
         .reminder-date {
             font-size: 12px;
             color: #6b7280;
+        }
+        
+        .reminder-amount {
+            font-size: 14px;
+            font-weight: 500;
+            color: #dc2626;
+            margin-left: auto;
         }
         
         .tag-stat {
@@ -267,6 +315,82 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .quick-action.green {
+            background: linear-gradient(135deg, #667eea 0%, #059669 100%);
+        }
+        
+        .quick-action.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .quick-action.purple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #374151;
+        }
+        
+        .revenue-chart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 16px;
+        }
+        
+        .revenue-amount {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .revenue-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .revenue-breakdown {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+        }
+        
+        .revenue-item {
+            text-align: center;
+        }
+        
+        .revenue-item-amount {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .revenue-item-label {
+            font-size: 12px;
+            opacity: 0.8;
         }
         
         .modal {
@@ -331,7 +455,8 @@
                 grid-template-columns: 1fr;
             }
             
-            .grid-cols-4 {
+            .grid-cols-4,
+            .grid-cols-5 {
                 grid-template-columns: repeat(2, 1fr);
             }
             
@@ -339,6 +464,15 @@
             .col-span-9,
             .col-span-6 {
                 grid-column: span 1;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .revenue-breakdown {
+                flex-direction: column;
+                gap: 12px;
             }
         }
     </style>
@@ -350,7 +484,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h1>CRM System</h1>
-                    <p>Verwalte deine Unternehmen, Kontakte und Erinnerungen</p>
+                    <p>Verwalte deine Unternehmen, Kontakte, Produkte und Rechnungen</p>
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <button class="button" onclick="showExportModal()">
@@ -375,6 +509,12 @@
                         <a href="companies.html" class="nav-button">
                             🏢 Unternehmen
                         </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -391,38 +531,103 @@
             <!-- Main Content -->
             <div class="col-span-9">
                 <div class="space-y-6">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="companies.html" class="quick-action">
+                            <div style="font-size: 24px;">🏢</div>
+                            <div>
+                                <div style="font-weight: 600;">Neues Unternehmen</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Kunde hinzufügen</div>
+                            </div>
+                        </a>
+                        <a href="products.html" class="quick-action green">
+                            <div style="font-size: 24px;">📦</div>
+                            <div>
+                                <div style="font-weight: 600;">Neues Produkt</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Sortiment erweitern</div>
+                            </div>
+                        </a>
+                        <a href="create-invoice.html" class="quick-action orange">
+                            <div style="font-size: 24px;">💰</div>
+                            <div>
+                                <div style="font-weight: 600;">Neue Rechnung</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Rechnung erstellen</div>
+                            </div>
+                        </a>
+                        <a href="reminders.html" class="quick-action purple">
+                            <div style="font-size: 24px;">📅</div>
+                            <div>
+                                <div style="font-weight: 600;">Erinnerung</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Termin planen</div>
+                            </div>
+                        </a>
+                    </div>
+
                     <!-- Stats Overview -->
-                    <div class="grid grid-cols-4">
-                        <div class="stat-card">
+                    <div class="grid grid-cols-5">
+                        <div class="stat-card" onclick="window.location.href='companies.html'">
                             <div>
                                 <div class="stat-label">Unternehmen</div>
                                 <div class="stat-number" id="total-companies">0</div>
+                                <div class="stat-trend" id="companies-trend"></div>
                             </div>
                             <div class="icon icon-blue">🏢</div>
                         </div>
                         
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="window.location.href='companies.html'">
                             <div>
                                 <div class="stat-label">Kontakte</div>
                                 <div class="stat-number" id="total-contacts">0</div>
+                                <div class="stat-trend" id="contacts-trend"></div>
                             </div>
                             <div class="icon icon-green">👤</div>
                         </div>
                         
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="window.location.href='products.html'">
                             <div>
-                                <div class="stat-label">Offene Erinnerungen</div>
-                                <div class="stat-number" id="total-reminders">0</div>
+                                <div class="stat-label">Produkte</div>
+                                <div class="stat-number" id="total-products">0</div>
+                                <div class="stat-trend" id="products-trend"></div>
                             </div>
-                            <div class="icon icon-purple">📅</div>
+                            <div class="icon icon-purple">📦</div>
                         </div>
                         
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="window.location.href='invoices.html'">
                             <div>
-                                <div class="stat-label">Überfällige Tasks</div>
-                                <div class="stat-number" id="overdue-reminders">0</div>
+                                <div class="stat-label">Offene Rechnungen</div>
+                                <div class="stat-number" id="open-invoices">0</div>
+                                <div class="stat-trend" id="invoices-trend"></div>
                             </div>
-                            <div class="icon icon-red">⚠️</div>
+                            <div class="icon icon-yellow">💰</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="window.location.href='reminders.html'">
+                            <div>
+                                <div class="stat-label">Erinnerungen</div>
+                                <div class="stat-number" id="total-reminders">0</div>
+                                <div class="stat-trend" id="reminders-trend"></div>
+                            </div>
+                            <div class="icon icon-red">📅</div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Overview -->
+                    <div class="revenue-chart">
+                        <div class="revenue-amount" id="total-revenue">€0</div>
+                        <div class="revenue-label">Gesamtumsatz dieses Jahr</div>
+                        <div class="revenue-breakdown">
+                            <div class="revenue-item">
+                                <div class="revenue-item-amount" id="monthly-revenue">€0</div>
+                                <div class="revenue-item-label">Dieser Monat</div>
+                            </div>
+                            <div class="revenue-item">
+                                <div class="revenue-item-amount" id="pending-revenue">€0</div>
+                                <div class="revenue-item-label">Ausstehend</div>
+                            </div>
+                            <div class="revenue-item">
+                                <div class="revenue-item-amount" id="overdue-revenue">€0</div>
+                                <div class="revenue-item-label">Überfällig</div>
+                            </div>
                         </div>
                     </div>
 
@@ -442,15 +647,15 @@
                             </div>
                         </div>
 
-                        <!-- Upcoming Reminders -->
+                        <!-- Upcoming Tasks & Overdue Invoices -->
                         <div class="col-span-6">
                             <div class="card">
-                                <h3 class="section-title">⏰ Anstehende Termine</h3>
-                                <div id="upcoming-reminders">
+                                <h3 class="section-title">⚠️ Wichtige Aufgaben</h3>
+                                <div id="important-tasks">
                                     <div class="empty-state">
-                                        <p>Keine anstehenden Termine</p>
+                                        <p>Alle Aufgaben erledigt</p>
                                         <p style="font-size: 12px; margin-top: 8px;">
-                                            <a href="reminders.html" style="color: #2563eb;">Erste Erinnerung erstellen</a>
+                                            <a href="reminders.html" style="color: #2563eb;">Neue Erinnerung erstellen</a>
                                         </p>
                                     </div>
                                 </div>
@@ -460,7 +665,7 @@
 
                     <!-- Tag Statistics -->
                     <div class="card">
-                        <h3 class="section-title">🏷️ Tag-Verteilung</h3>
+                        <h3 class="section-title">🏷️ Kunden-Verteilung</h3>
                         <div id="tag-stats" class="grid grid-cols-4">
                             <div class="empty-state" style="grid-column: span 4;">
                                 <p>Keine Tags konfiguriert</p>
@@ -493,7 +698,7 @@
                 <div style="font-size: 20px;">📊</div>
                 <div>
                     <div style="font-weight: 500;">CSV Export</div>
-                    <div style="font-size: 12px; color: #6b7280;">3 separate Dateien für Excel</div>
+                    <div style="font-size: 12px; color: #6b7280;">Separate Dateien für Excel</div>
                 </div>
             </div>
             
@@ -506,7 +711,7 @@
     </div>
 
     <script>
-        // CRM Data Management
+        // CRM Data Management (VOLLSTÄNDIG ERWEITERT)
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -514,6 +719,22 @@
                 return {
                     companies: [],
                     reminders: [],
+                    products: [], // NEU
+                    invoices: [], // NEU
+                    invoiceSettings: { // NEU
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
                         { id: 2, name: 'Interessent', color: 'tag-blue' },
@@ -548,6 +769,9 @@
                         return {
                             ...defaultData,
                             ...parsed,
+                            products: parsed.products || [], // Ensure products array exists
+                            invoices: parsed.invoices || [], // Ensure invoices array exists
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -580,52 +804,136 @@
                     minute: '2-digit'
                 });
             }
+            
+            static formatCurrency(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2
+                }).format(amount);
+            }
         }
 
-        let crmData = null;
-
-// Neue async Initialisierung
-async function initializeCRM() {
-    // Prüfe auf Migration von localStorage
-    await CRMData.migrateFromLocalStorage();
-    
-    // Lade Daten
-    crmData = await CRMData.load();
-    
-    // Starte UI Updates
-    updateDashboard(); // oder andere Update-Funktionen
-}
-
-// Starte CRM wenn Seite geladen ist
-window.onload = initializeCRM;
+        let crmData = CRMData.load();
 
         // Dashboard functions
         function updateDashboard() {
             const totalContacts = crmData.companies.reduce((sum, company) => sum + (company.contacts || []).length, 0);
             const activeReminders = crmData.reminders.filter(r => !r.completed).length;
-            const overdueReminders = crmData.reminders.filter(r => 
-                !r.completed && new Date(r.date + ' ' + r.time) < new Date()
-            ).length;
+            const activeProducts = crmData.products.filter(p => p.active).length;
+            
+            // Invoice statistics
+            const openInvoices = crmData.invoices.filter(i => ['sent', 'draft'].includes(i.status));
+            const overdueInvoices = crmData.invoices.filter(i => {
+                return i.status === 'sent' && new Date(i.dueDate) < new Date();
+            });
+            
+            // Revenue calculations
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+            
+            const paidThisYear = crmData.invoices.filter(i => {
+                const invoiceDate = new Date(i.date);
+                return i.status === 'paid' && invoiceDate.getFullYear() === currentYear;
+            });
+            
+            const paidThisMonth = crmData.invoices.filter(i => {
+                const invoiceDate = new Date(i.date);
+                return i.status === 'paid' && 
+                       invoiceDate.getFullYear() === currentYear &&
+                       invoiceDate.getMonth() === currentMonth;
+            });
+            
+            const yearlyRevenue = paidThisYear.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            const monthlyRevenue = paidThisMonth.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            const pendingRevenue = openInvoices.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            const overdueRevenue = overdueInvoices.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
 
+            // Update basic stats
             document.getElementById('total-companies').textContent = crmData.companies.length;
             document.getElementById('total-contacts').textContent = totalContacts;
+            document.getElementById('total-products').textContent = activeProducts;
+            document.getElementById('open-invoices').textContent = openInvoices.length;
             document.getElementById('total-reminders').textContent = activeReminders;
-            document.getElementById('overdue-reminders').textContent = overdueReminders;
             document.getElementById('reminder-count').textContent = activeReminders;
 
+            // Update revenue stats
+            document.getElementById('total-revenue').textContent = CRMData.formatCurrency(yearlyRevenue);
+            document.getElementById('monthly-revenue').textContent = CRMData.formatCurrency(monthlyRevenue);
+            document.getElementById('pending-revenue').textContent = CRMData.formatCurrency(pendingRevenue);
+            document.getElementById('overdue-revenue').textContent = CRMData.formatCurrency(overdueRevenue);
+
+            // Update trends (simplified)
+            updateTrends();
             updateRecentActivities();
-            updateUpcomingReminders();
+            updateImportantTasks();
             updateTagStats();
+        }
+
+        function updateTrends() {
+            // Simple trend indicators (could be enhanced with historical data)
+            const hasNewCompanies = crmData.companies.some(c => 
+                new Date(c.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            );
+            const hasNewProducts = crmData.products.some(p => 
+                new Date(p.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            );
+            const hasNewInvoices = crmData.invoices.some(i => 
+                new Date(i.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            );
+
+            if (hasNewCompanies) {
+                document.getElementById('companies-trend').innerHTML = '<span class="trend-up">↗ Neu diese Woche</span>';
+            }
+            if (hasNewProducts) {
+                document.getElementById('products-trend').innerHTML = '<span class="trend-up">↗ Neu hinzugefügt</span>';
+            }
+            if (hasNewInvoices) {
+                document.getElementById('invoices-trend').innerHTML = '<span class="trend-up">↗ Neue Rechnungen</span>';
+            }
         }
 
         function updateRecentActivities() {
             const container = document.getElementById('recent-activities');
-            const recentActivities = crmData.companies
+            
+            // Combine different types of activities
+            const activities = [];
+            
+            // Recent companies
+            crmData.companies
                 .filter(c => c.lastActivity)
                 .sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity))
-                .slice(0, 5);
-
-            if (recentActivities.length === 0) {
+                .slice(0, 3)
+                .forEach(company => {
+                    activities.push({
+                        type: 'company',
+                        name: company.name,
+                        time: company.lastActivity,
+                        icon: '🏢',
+                        action: 'Unternehmen aktualisiert'
+                    });
+                });
+            
+            // Recent invoices
+            crmData.invoices
+                .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+                .slice(0, 3)
+                .forEach(invoice => {
+                    const company = crmData.companies.find(c => c.id === invoice.companyId);
+                    activities.push({
+                        type: 'invoice',
+                        name: `${invoice.invoiceNumber} - ${company ? company.name : 'Unbekannt'}`,
+                        time: invoice.createdAt || invoice.date,
+                        icon: '💰',
+                        action: 'Rechnung erstellt',
+                        amount: CRMData.formatCurrency(parseFloat(invoice.totalGross))
+                    });
+                });
+            
+            // Sort all activities by time
+            activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
+            if (activities.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <p>Keine Aktivitäten vorhanden</p>
@@ -637,54 +945,105 @@ window.onload = initializeCRM;
                 return;
             }
 
-            container.innerHTML = recentActivities.map(company => `
-                <div class="activity-item" onclick="window.location.href='companies.html'">
-                    <div class="icon icon-blue" style="width: 24px; height: 24px; font-size: 12px;">🏢</div>
-                    <div>
-                        <div class="activity-name">${company.name}</div>
-                        <div class="activity-time">${CRMData.formatTimestamp(company.lastActivity)}</div>
+            container.innerHTML = activities.slice(0, 5).map(activity => `
+                <div class="activity-item" onclick="navigateToActivity('${activity.type}')">
+                    <div class="icon" style="width: 24px; height: 24px; font-size: 12px; background-color: #2563eb;">${activity.icon}</div>
+                    <div style="flex: 1;">
+                        <div class="activity-name">${activity.name}</div>
+                        <div class="activity-time">${activity.action} • ${CRMData.formatTimestamp(activity.time)}</div>
                     </div>
-                    <div style="margin-left: auto;">
-                        <div style="color: #059669;">✓</div>
-                    </div>
+                    ${activity.amount ? `<div class="activity-amount">${activity.amount}</div>` : ''}
                 </div>
             `).join('');
         }
 
-        function updateUpcomingReminders() {
-            const container = document.getElementById('upcoming-reminders');
-            const upcomingReminders = crmData.reminders
-                .filter(r => !r.completed)
-                .sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time))
-                .slice(0, 5);
-
-            if (upcomingReminders.length === 0) {
+        function updateImportantTasks() {
+            const container = document.getElementById('important-tasks');
+            const tasks = [];
+            
+            // Overdue invoices
+            const overdueInvoices = crmData.invoices.filter(i => {
+                return i.status === 'sent' && new Date(i.dueDate) < new Date();
+            });
+            
+            overdueInvoices.forEach(invoice => {
+                const company = crmData.companies.find(c => c.id === invoice.companyId);
+                const daysPast = Math.floor((new Date() - new Date(invoice.dueDate)) / (1000 * 60 * 60 * 24));
+                
+                tasks.push({
+                    type: 'overdue-invoice',
+                    title: `Überfällige Rechnung ${invoice.invoiceNumber}`,
+                    company: company ? company.name : 'Unbekanntes Unternehmen',
+                    date: `${daysPast} Tag${daysPast !== 1 ? 'e' : ''} überfällig`,
+                    amount: CRMData.formatCurrency(parseFloat(invoice.totalGross)),
+                    urgency: daysPast
+                });
+            });
+            
+            // Overdue reminders
+            const overdueReminders = crmData.reminders.filter(r => 
+                !r.completed && new Date(r.date + ' ' + r.time) < new Date()
+            );
+            
+            overdueReminders.slice(0, 3).forEach(reminder => {
+                const company = crmData.companies.find(c => c.id === reminder.companyId);
+                tasks.push({
+                    type: 'overdue-reminder',
+                    title: reminder.title,
+                    company: company ? company.name : 'Unbekanntes Unternehmen',
+                    date: `Seit ${new Date(reminder.date).toLocaleDateString('de-DE')}`,
+                    urgency: Math.floor((new Date() - new Date(reminder.date)) / (1000 * 60 * 60 * 24))
+                });
+            });
+            
+            // Upcoming reminders (next 3 days)
+            const upcomingReminders = crmData.reminders.filter(r => {
+                if (r.completed) return false;
+                const reminderDate = new Date(r.date + ' ' + r.time);
+                const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+                return reminderDate > new Date() && reminderDate <= threeDaysFromNow;
+            });
+            
+            upcomingReminders.slice(0, 2).forEach(reminder => {
+                const company = crmData.companies.find(c => c.id === reminder.companyId);
+                tasks.push({
+                    type: 'upcoming-reminder',
+                    title: reminder.title,
+                    company: company ? company.name : 'Unbekanntes Unternehmen',
+                    date: `${new Date(reminder.date).toLocaleDateString('de-DE')} um ${reminder.time}`,
+                    urgency: 0
+                });
+            });
+            
+            // Sort by urgency
+            tasks.sort((a, b) => b.urgency - a.urgency);
+            
+            if (tasks.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <p>Keine anstehenden Termine</p>
+                        <p>Alle Aufgaben erledigt! 🎉</p>
                         <p style="font-size: 12px; margin-top: 8px;">
-                            <a href="reminders.html" style="color: #2563eb;">Erste Erinnerung erstellen</a>
+                            <a href="reminders.html" style="color: #2563eb;">Neue Erinnerung erstellen</a>
                         </p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = upcomingReminders.map(reminder => {
-                const company = crmData.companies.find(c => c.id === reminder.companyId);
-                const isOverdue = new Date(reminder.date + ' ' + reminder.time) < new Date();
-                return `
-                    <div class="reminder-item ${isOverdue ? 'overdue' : ''}" onclick="window.location.href='reminders.html'">
-                        <div class="icon icon-purple" style="width: 24px; height: 24px; font-size: 12px;">📅</div>
-                        <div>
-                            <div class="reminder-title">${reminder.title}</div>
-                            <div class="reminder-company">${company?.name || 'Unbekanntes Unternehmen'}</div>
-                            <div class="reminder-date">${new Date(reminder.date).toLocaleDateString('de-DE')} um ${reminder.time}</div>
-                        </div>
-                        ${isOverdue ? '<div style="margin-left: auto; color: #dc2626;">⚠️</div>' : ''}
+            container.innerHTML = tasks.slice(0, 5).map(task => `
+                <div class="reminder-item ${task.type}" onclick="navigateToTask('${task.type}')">
+                    <div class="icon" style="width: 24px; height: 24px; font-size: 12px; 
+                        background-color: ${task.type.includes('overdue') ? '#dc2626' : '#d97706'};">
+                        ${task.type.includes('invoice') ? '💰' : '📅'}
                     </div>
-                `;
-            }).join('');
+                    <div style="flex: 1;">
+                        <div class="reminder-title">${task.title}</div>
+                        <div class="reminder-company">${task.company}</div>
+                        <div class="reminder-date">${task.date}</div>
+                    </div>
+                    ${task.amount ? `<div class="reminder-amount">${task.amount}</div>` : ''}
+                </div>
+            `).join('');
         }
 
         function updateTagStats() {
@@ -717,7 +1076,24 @@ window.onload = initializeCRM;
             `).join('');
         }
 
-        // Export functions
+        // Navigation helpers
+        function navigateToActivity(type) {
+            if (type === 'company') {
+                window.location.href = 'companies.html';
+            } else if (type === 'invoice') {
+                window.location.href = 'invoices.html';
+            }
+        }
+
+        function navigateToTask(type) {
+            if (type.includes('invoice')) {
+                window.location.href = 'invoices.html';
+            } else {
+                window.location.href = 'reminders.html';
+            }
+        }
+
+        // Export functions (UPDATED)
         function showExportModal() {
             document.getElementById('export-modal').classList.remove('hidden');
         }
@@ -757,6 +1133,18 @@ window.onload = initializeCRM;
                 )
             ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
 
+            // Export Products
+            const productsCSV = [
+                ['ID', 'Name', 'Beschreibung', 'Preis', 'Einheit', 'Kategorie', 'MwSt', 'Aktiv'],
+                ...crmData.products.map(p => [p.id, p.name, p.description || '', p.price, p.unit, p.category || '', p.vatRate, p.active])
+            ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+
+            // Export Invoices
+            const invoicesCSV = [
+                ['ID', 'Nummer', 'Unternehmen_ID', 'Datum', 'Fällig', 'Status', 'Netto', 'MwSt', 'Brutto'],
+                ...crmData.invoices.map(i => [i.id, i.invoiceNumber, i.companyId, i.date, i.dueDate, i.status, i.totalNet, i.totalVat, i.totalGross])
+            ].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+
             // Export Reminders
             const remindersCSV = [
                 ['ID', 'Unternehmen_ID', 'Kontakt_ID', 'Titel', 'Datum', 'Zeit', 'Notizen', 'Erledigt'],
@@ -767,6 +1155,8 @@ window.onload = initializeCRM;
             [
                 { name: 'unternehmen', data: companiesCSV },
                 { name: 'kontakte', data: contactsCSV },
+                { name: 'produkte', data: productsCSV },
+                { name: 'rechnungen', data: invoicesCSV },
                 { name: 'erinnerungen', data: remindersCSV }
             ].forEach(({ name, data }) => {
                 const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
@@ -791,7 +1181,7 @@ window.onload = initializeCRM;
                     const data = JSON.parse(e.target.result);
                     if (data.companies !== undefined && data.reminders !== undefined) {
                         crmData = { ...CRMData.getDefaultData(), ...data };
-                        await CRMData.save(crmData);
+                        CRMData.save(crmData);
                         updateDashboard();
                         alert('Import erfolgreich! CRM-Daten wurden geladen.');
                     } else {
@@ -820,7 +1210,7 @@ window.onload = initializeCRM;
                         notes: "Wichtiger Kunde seit 2020",
                         tags: [1, 3],
                         createdAt: "2024-01-15T10:30:00Z",
-                        lastActivity: "2025-05-28T14:20:00Z",
+                        lastActivity: "2025-06-20T14:20:00Z",
                         contacts: [
                             {
                                 id: 1,
@@ -849,7 +1239,73 @@ window.onload = initializeCRM;
                     }
                 ];
                 
-                await CRMData.save(crmData);
+                // Add sample products if none exist
+                if (crmData.products.length === 0) {
+                    crmData.products = [
+                        {
+                            id: 1,
+                            name: 'Webdesign-Paket',
+                            description: 'Professionelles Webdesign inkl. Responsive Design und SEO-Optimierung',
+                            price: '1500.00',
+                            unit: 'Paket',
+                            category: 'Dienstleistung',
+                            vatRate: '19',
+                            active: true,
+                            createdAt: CRMData.getCurrentTimestamp(),
+                            updatedAt: CRMData.getCurrentTimestamp()
+                        },
+                        {
+                            id: 2,
+                            name: 'Beratungsstunde',
+                            description: 'Strategische IT-Beratung und Consulting',
+                            price: '120.00',
+                            unit: 'Stunden',
+                            category: 'Beratung',
+                            vatRate: '19',
+                            active: true,
+                            createdAt: CRMData.getCurrentTimestamp(),
+                            updatedAt: CRMData.getCurrentTimestamp()
+                        }
+                    ];
+                }
+                
+                // Add sample invoices if none exist
+                if (crmData.invoices.length === 0) {
+                    crmData.invoices = [
+                        {
+                            id: 1,
+                            invoiceNumber: 'R-0001',
+                            companyId: 1,
+                            contactId: 1,
+                            date: '2025-06-15',
+                            dueDate: '2025-07-15',
+                            status: 'sent',
+                            items: [
+                                {
+                                    id: 1,
+                                    productId: 1,
+                                    productName: 'Webdesign-Paket',
+                                    description: 'Komplettes Webdesign inkl. Responsive Design',
+                                    quantity: 1,
+                                    unit: 'Paket',
+                                    unitPrice: '1500.00',
+                                    vatRate: '19',
+                                    totalPrice: '1500.00'
+                                }
+                            ],
+                            totalNet: '1500.00',
+                            totalVat: '285.00',
+                            totalGross: '1785.00',
+                            vatRate: '19',
+                            notes: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                            createdAt: CRMData.getCurrentTimestamp(),
+                            updatedAt: CRMData.getCurrentTimestamp()
+                        }
+                    ];
+                    crmData.invoiceSettings.nextInvoiceNumber = 2;
+                }
+                
+                CRMData.save(crmData);
             }
             
             updateDashboard();
