@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Produkte & Dienstleistungen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .icon-blue { background-color: #2563eb; }
+        .icon-green { background-color: #059669; }
+        .icon-purple { background-color: #7c3aed; }
+        .icon-red { background-color: #dc2626; }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .button-gray {
+            background-color: #6b7280;
+        }
+        
+        .button-gray:hover {
+            background-color: #4b5563;
+        }
+        
+        .button-red {
+            background-color: #dc2626;
+        }
+        
+        .button-red:hover {
+            background-color: #b91c1c;
+        }
+        
+        .product-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .product-card.inactive {
+            opacity: 0.6;
+            border-color: #f3f4f6;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .product-category {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+        }
+        
+        .product-unit {
+            font-size: 14px;
+            color: #6b7280;
+            margin-left: 4px;
+        }
+        
+        .product-description {
+            color: #6b7280;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .product-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .icon-button:hover {
+            color: #2563eb;
+            background-color: #f3f4f6;
+        }
+        
+        .icon-button.delete:hover {
+            color: #dc2626;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .vat-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            background-color: #f3e8ff;
+            color: #7c2d12;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            ring: 2px;
+            ring-color: #bfdbfe;
+        }
+        
+        .form-input.error {
+            border-color: #dc2626;
+        }
+        
+        .form-error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .currency-input {
+            position: relative;
+        }
+        
+        .currency-input::before {
+            content: '€';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            z-index: 1;
+        }
+        
+        .currency-input input {
+            padding-left: 28px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 600px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #6b7280;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-3,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .product-header {
+                flex-direction: column;
+                align-items: start;
+                gap: 8px;
+            }
+            
+            .product-actions {
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+                        Produkte & Dienstleistungen
+                    </h1>
+                    <p style="color: #6b7280;">
+                        Verwalte dein Produktsortiment für die Rechnungserstellung
+                    </p>
+                </div>
+                <button class="button" onclick="showProductModal()">
+                    ➕ Neues Produkt
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="products.html" class="nav-button active">
+                            📦 Produkte
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <!-- Statistics -->
+                <div class="grid grid-cols-3" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Aktive Produkte</div>
+                            <div class="stat-number" id="active-products-count">0</div>
+                        </div>
+                        <div class="icon icon-green">📦</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Kategorien</div>
+                            <div class="stat-number" id="categories-count">0</div>
+                        </div>
+                        <div class="icon icon-blue">🏷️</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Ø Preis</div>
+                            <div class="stat-number" id="average-price">€0</div>
+                        </div>
+                        <div class="icon icon-purple">💰</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="filters">
+                        <input type="text" id="search-input" class="search-input" placeholder="🔍 Produkte durchsuchen...">
+                        <select id="category-filter" class="filter-select">
+                            <option value="">Alle Kategorien</option>
+                        </select>
+                        <select id="status-filter" class="filter-select">
+                            <option value="">Alle Status</option>
+                            <option value="active">Aktiv</option>
+                            <option value="inactive">Inaktiv</option>
+                        </select>
+                        <select id="sort-filter" class="filter-select">
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="price-asc">Preis (aufsteigend)</option>
+                            <option value="price-desc">Preis (absteigend)</option>
+                            <option value="category-asc">Kategorie</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products List -->
+                <div class="card">
+                    <div id="products-container">
+                        <!-- Products will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="modal-title" id="product-modal-title">Neues Produkt</h3>
+            
+            <form id="product-form">
+                <!-- Basic Info -->
+                <div class="form-group">
+                    <label class="form-label">Produktname *</label>
+                    <input type="text" id="product-name" class="form-input" placeholder="z.B. Webdesign, Beratung, Software-Lizenz">
+                    <div id="product-name-error" class="form-error" style="display: none;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Beschreibung</label>
+                    <textarea id="product-description" class="form-input form-textarea" placeholder="Detaillierte Beschreibung des Produkts/der Dienstleistung"></textarea>
+                </div>
+                
+                <!-- Pricing -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Preis (netto) *</label>
+                        <div class="currency-input">
+                            <input type="number" id="product-price" class="form-input" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <div id="product-price-error" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Einheit</label>
+                        <select id="product-unit" class="form-input">
+                            <option value="Stück">Stück</option>
+                            <option value="Stunden">Stunden</option>
+                            <option value="Tage">Tage</option>
+                            <option value="Monat">Monat</option>
+                            <option value="Jahr">Jahr</option>
+                            <option value="Paket">Paket</option>
+                            <option value="Lizenz">Lizenz</option>
+                            <option value="m²">m²</option>
+                            <option value="kg">kg</option>
+                            <option value="Liter">Liter</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Category & Tax -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Kategorie</label>
+                        <input type="text" id="product-category" class="form-input" placeholder="z.B. Dienstleistung, Software, Hardware">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">MwSt-Satz (%)</label>
+                        <select id="product-vat" class="form-input">
+                            <option value="19">19% (Standard)</option>
+                            <option value="7">7% (Ermäßigt)</option>
+                            <option value="0">0% (Steuerbefreit)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Status -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="product-active" checked>
+                        <span>Produkt ist aktiv und kann für Rechnungen verwendet werden</span>
+                    </label>
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="button" onclick="saveProduct()">Speichern</button>
+                <button class="button button-gray" onclick="hideProductModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management (erweitert um Produkte)
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    products: [], // Neue Produkte
+                    tags: [
+                        { id: 1, name: 'Kunde', color: 'tag-green' },
+                        { id: 2, name: 'Interessent', color: 'tag-blue' },
+                        { id: 3, name: 'Partner', color: 'tag-purple' },
+                        { id: 4, name: 'Lieferant', color: 'tag-orange' }
+                    ],
+                    companyFields: [
+                        { id: 1, name: 'name', label: 'Firmenname', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'address', label: 'Adresse', type: 'text', required: false, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'website', label: 'Website', type: 'url', required: false, active: false, order: 5 },
+                        { id: 6, name: 'notes', label: 'Notizen', type: 'textarea', required: false, active: true, order: 6 }
+                    ],
+                    contactFields: [
+                        { id: 1, name: 'name', label: 'Name', type: 'text', required: true, active: true, order: 1 },
+                        { id: 2, name: 'position', label: 'Position', type: 'text', required: true, active: true, order: 2 },
+                        { id: 3, name: 'phone', label: 'Telefon', type: 'text', required: false, active: true, order: 3 },
+                        { id: 4, name: 'email', label: 'E-Mail', type: 'email', required: true, active: true, order: 4 },
+                        { id: 5, name: 'mobile', label: 'Mobil', type: 'text', required: false, active: false, order: 5 }
+                    ]
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            products: parsed.products || [], // Ensure products array exists
+                            tags: parsed.tags || defaultData.tags,
+                            companyFields: parsed.companyFields || defaultData.companyFields,
+                            contactFields: parsed.contactFields || defaultData.contactFields
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+            
+            static getCurrentTimestamp() {
+                return new Date().toISOString();
+            }
+            
+            static formatCurrency(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2
+                }).format(amount);
+            }
+        }
+
+        let crmData = CRMData.load();
+        let editingProduct = null;
+        let filteredProducts = [];
+
+        // Product Management
+        function updateProductsList() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const sortFilter = document.getElementById('sort-filter').value;
+            
+            // Filter products
+            filteredProducts = crmData.products.filter(product => {
+                const matchesSearch = !searchTerm || 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                    (product.category && product.category.toLowerCase().includes(searchTerm));
+                
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                const matchesStatus = !statusFilter || 
+                    (statusFilter === 'active' && product.active) ||
+                    (statusFilter === 'inactive' && !product.active);
+                
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+            
+            // Sort products
+            const [field, direction] = sortFilter.split('-');
+            filteredProducts.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(field) {
+                    case 'name':
+                        aVal = a.name.toLowerCase();
+                        bVal = b.name.toLowerCase();
+                        break;
+                    case 'price':
+                        aVal = parseFloat(a.price) || 0;
+                        bVal = parseFloat(b.price) || 0;
+                        break;
+                    case 'category':
+                        aVal = (a.category || '').toLowerCase();
+                        bVal = (b.category || '').toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (direction === 'asc') {
+                    return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                } else {
+                    return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                }
+            });
+            
+            renderProducts();
+            updateStatistics();
+            updateCategoryFilter();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
+                            ${crmData.products.length === 0 ? 'Keine Produkte vorhanden' : 'Keine Produkte gefunden'}
+                        </h3>
+                        <p style="color: #9ca3af; margin-bottom: 16px;">
+                            ${crmData.products.length === 0 ? 
+                                'Erstelle dein erstes Produkt, um mit der Rechnungserstellung zu beginnen' : 
+                                'Versuche andere Suchbegriffe oder Filter'}
+                        </p>
+                        ${crmData.products.length === 0 ? `
+                            <button class="button" onclick="showProductModal()">
+                                Erstes Produkt erstellen
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredProducts.map(product => {
+                const grossPrice = parseFloat(product.price) * (1 + parseFloat(product.vatRate) / 100);
+                
+                return `
+                    <div class="product-card ${!product.active ? 'inactive' : ''}" onclick="editProduct(${product.id})">
+                        <div class="product-header">
+                            <div>
+                                <div class="product-name">${product.name}</div>
+                                ${product.category ? `<div class="product-category">${product.category}</div>` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="product-price">
+                                    ${CRMData.formatCurrency(parseFloat(product.price))}
+                                    <span class="product-unit">/ ${product.unit}</span>
+                                </div>
+                                <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                                    ${CRMData.formatCurrency(grossPrice)} brutto
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${product.description ? `
+                            <div class="product-description">${product.description}</div>
+                        ` : ''}
+                        
+                        <div class="product-meta">
+                            <span class="status-badge ${product.active ? 'status-active' : 'status-inactive'}">
+                                ${product.active ? 'Aktiv' : 'Inaktiv'}
+                            </span>
+                            
+                            ${product.category ? `
+                                <span class="category-badge">${product.category}</span>
+                            ` : ''}
+                            
+                            <span class="vat-badge">${product.vatRate}% MwSt</span>
+                            
+                            <div style="margin-left: auto; font-size: 12px; color: #9ca3af;">
+                                ${new Date(product.createdAt).toLocaleDateString('de-DE')}
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions" onclick="event.stopPropagation();">
+                            <button class="icon-button" onclick="editProduct(${product.id})" title="Bearbeiten">
+                                ✏️
+                            </button>
+                            <button class="icon-button" onclick="duplicateProduct(${product.id})" title="Duplizieren">
+                                📋
+                            </button>
+                            <button class="icon-button delete" onclick="deleteProduct(${product.id})" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatistics() {
+            const activeProducts = crmData.products.filter(p => p.active);
+            const categories = [...new Set(crmData.products.map(p => p.category).filter(Boolean))];
+            const averagePrice = activeProducts.length > 0 ? 
+                activeProducts.reduce((sum, p) => sum + parseFloat(p.price), 0) / activeProducts.length : 0;
+            
+            document.getElementById('active-products-count').textContent = activeProducts.length;
+            document.getElementById('categories-count').textContent = categories.length;
+            document.getElementById('average-price').textContent = CRMData.formatCurrency(averagePrice);
+        }
+
+        function updateCategoryFilter() {
+            const categoryFilter = document.getElementById('category-filter');
+            const categories = [...new Set(crmData.products.map(p => p.category).filter(Boolean))].sort();
+            const currentValue = categoryFilter.value;
+            
+            categoryFilter.innerHTML = '<option value="">Alle Kategorien</option>' +
+                categories.map(category => `<option value="${category}">${category}</option>`).join('');
+            
+            categoryFilter.value = currentValue;
+        }
+
+        // Modal functions
+        function showProductModal() {
+            editingProduct = null;
+            document.getElementById('product-modal-title').textContent = 'Neues Produkt';
+            clearProductForm();
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function hideProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            clearValidationErrors();
+        }
+
+        function clearProductForm() {
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-description').value = '';
+            document.getElementById('product-price').value = '';
+            document.getElementById('product-unit').value = 'Stück';
+            document.getElementById('product-category').value = '';
+            document.getElementById('product-vat').value = '19';
+            document.getElementById('product-active').checked = true;
+        }
+
+        function clearValidationErrors() {
+            document.querySelectorAll('.form-error').forEach(error => {
+                error.style.display = 'none';
+                error.textContent = '';
+            });
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        function validateProductForm() {
+            clearValidationErrors();
+            let isValid = true;
+            
+            const name = document.getElementById('product-name').value.trim();
+            const price = document.getElementById('product-price').value.trim();
+            
+            if (!name) {
+                showValidationError('product-name', 'product-name-error', 'Produktname ist erforderlich');
+                isValid = false;
+            }
+            
+            if (!price || parseFloat(price) < 0) {
+                showValidationError('product-price', 'product-price-error', 'Gültiger Preis ist erforderlich');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function showValidationError(inputId, errorId, message) {
+            document.getElementById(inputId).classList.add('error');
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function saveProduct() {
+            if (!validateProductForm()) return;
+            
+            const productData = {
+                name: document.getElementById('product-name').value.trim(),
+                description: document.getElementById('product-description').value.trim(),
+                price: document.getElementById('product-price').value.trim(),
+                unit: document.getElementById('product-unit').value,
+                category: document.getElementById('product-category').value.trim(),
+                vatRate: document.getElementById('product-vat').value,
+                active: document.getElementById('product-active').checked
+            };
+            
+            const timestamp = CRMData.getCurrentTimestamp();
+            
+            if (editingProduct) {
+                // Update existing product
+                const index = crmData.products.findIndex(p => p.id === editingProduct.id);
+                crmData.products[index] = {
+                    ...crmData.products[index],
+                    ...productData,
+                    updatedAt: timestamp
+                };
+            } else {
+                // Create new product
+                const newProduct = {
+                    id: Date.now(),
+                    ...productData,
+                    createdAt: timestamp,
+                    updatedAt: timestamp
+                };
+                crmData.products.push(newProduct);
+            }
+            
+            CRMData.save(crmData);
+            hideProductModal();
+            updateProductsList();
+        }
+
+        function editProduct(productId) {
+            editingProduct = crmData.products.find(p => p.id === productId);
+            if (!editingProduct) return;
+            
+            document.getElementById('product-modal-title').textContent = 'Produkt bearbeiten';
+            document.getElementById('product-name').value = editingProduct.name;
+            document.getElementById('product-description').value = editingProduct.description || '';
+            document.getElementById('product-price').value = editingProduct.price;
+            document.getElementById('product-unit').value = editingProduct.unit;
+            document.getElementById('product-category').value = editingProduct.category || '';
+            document.getElementById('product-vat').value = editingProduct.vatRate;
+            document.getElementById('product-active').checked = editingProduct.active;
+            
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function duplicateProduct(productId) {
+            const product = crmData.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const newProduct = {
+                ...product,
+                id: Date.now(),
+                name: product.name + ' (Kopie)',
+                createdAt: CRMData.getCurrentTimestamp(),
+                updatedAt: CRMData.getCurrentTimestamp()
+            };
+            
+            crmData.products.push(newProduct);
+            CRMData.save(crmData);
+            updateProductsList();
+        }
+
+        function deleteProduct(productId) {
+            const product = crmData.products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (confirm(`Möchten Sie das Produkt "${product.name}" wirklich löschen?`)) {
+                crmData.products = crmData.products.filter(p => p.id !== productId);
+                CRMData.save(crmData);
+                updateProductsList();
+            }
+        }
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', updateProductsList);
+        document.getElementById('category-filter').addEventListener('change', updateProductsList);
+        document.getElementById('status-filter').addEventListener('change', updateProductsList);
+        document.getElementById('sort-filter').addEventListener('change', updateProductsList);
+
+        // Initialize with sample data if empty
+        function initializeSampleData() {
+            if (crmData.products.length === 0) {
+                const sampleProducts = [
+                    {
+                        id: 1,
+                        name: 'Webdesign-Paket',
+                        description: 'Professionelles Webdesign inkl. Responsive Design und SEO-Optimierung',
+                        price: '1500.00',
+                        unit: 'Paket',
+                        category: 'Dienstleistung',
+                        vatRate: '19',
+                        active: true,
+                        createdAt: CRMData.getCurrentTimestamp(),
+                        updatedAt: CRMData.getCurrentTimestamp()
+                    },
+                    {
+                        id: 2,
+                        name: 'Beratungsstunde',
+                        description: 'Strategische IT-Beratung und Consulting',
+                        price: '120.00',
+                        unit: 'Stunden',
+                        category: 'Beratung',
+                        vatRate: '19',
+                        active: true,
+                        createdAt: CRMData.getCurrentTimestamp(),
+                        updatedAt: CRMData.getCurrentTimestamp()
+                    },
+                    {
+                        id: 3,
+                        name: 'Software-Wartung',
+                        description: 'Monatliche Wartung und Updates für Ihre Software',
+                        price: '200.00',
+                        unit: 'Monat',
+                        category: 'Service',
+                        vatRate: '19',
+                        active: true,
+                        createdAt: CRMData.getCurrentTimestamp(),
+                        updatedAt: CRMData.getCurrentTimestamp()
+                    }
+                ];
+                
+                crmData.products = sampleProducts;
+                CRMData.save(crmData);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            initializeSampleData();
+            updateReminderCount();
+            updateProductsList();
+        };
+
+        // Close modal when clicking outside
+        document.getElementById('product-modal').addEventListener('click', function(e) {
+            if (e.target === this) hideProductModal();
+        });
+    </script>
+</body>
+</html>
