@@ -523,6 +523,12 @@
                         <a href="companies.html" class="nav-button">
                             🏢 Unternehmen
                         </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -637,7 +643,7 @@
                         <div style="margin-bottom: 32px;">
                             <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">📊 Daten-Management</h4>
                             
-                            <div class="grid grid-cols-2" style="gap: 16px;">
+                            <div class="grid grid-cols-3" style="gap: 16px;">
                                 <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
                                     <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-companies">0</div>
                                     <div style="font-size: 14px; color: #6b7280;">Unternehmen</div>
@@ -649,6 +655,14 @@
                                 <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
                                     <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-reminders">0</div>
                                     <div style="font-size: 14px; color: #6b7280;">Erinnerungen</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-products">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Produkte</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-invoices">0</div>
+                                    <div style="font-size: 14px; color: #6b7280;">Rechnungen</div>
                                 </div>
                                 <div style="text-align: center; padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px;">
                                     <div style="font-size: 24px; font-weight: bold; color: #1f2937;" id="total-tags">0</div>
@@ -806,7 +820,7 @@
     </div>
 
     <script>
-        // CRM Data Management (same as previous files)
+        // CRM Data Management (ERWEITERT mit allen Modulen)
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -814,6 +828,22 @@
                 return {
                     companies: [],
                     reminders: [],
+                    products: [], // NEU: Produkte hinzugefügt
+                    invoices: [], // NEU: Rechnungen hinzugefügt
+                    invoiceSettings: { // NEU: Rechnungseinstellungen hinzugefügt
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
                         { id: 2, name: 'Interessent', color: 'tag-blue' },
@@ -847,6 +877,10 @@
                         return {
                             ...defaultData,
                             ...parsed,
+                            // WICHTIG: Stelle sicher, dass alle neuen Felder existieren
+                            products: parsed.products || [],
+                            invoices: parsed.invoices || [],
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -867,22 +901,7 @@
             }
         }
 
-        let crmData = null;
-
-// Neue async Initialisierung
-async function initializeCRM() {
-    // Prüfe auf Migration von localStorage
-    await CRMData.migrateFromLocalStorage();
-    
-    // Lade Daten
-    crmData = await CRMData.load();
-    
-    // Starte UI Updates
-    updateDashboard(); // oder andere Update-Funktionen
-}
-
-// Starte CRM wenn Seite geladen ist
-window.onload = initializeCRM;
+        let crmData = CRMData.load();
         let currentFieldType = 'company';
         let editingField = null;
         let editingTag = null;
@@ -965,7 +984,7 @@ window.onload = initializeCRM;
             const field = fields.find(f => f.id === fieldId);
             if (field) {
                 field.active = !field.active;
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateFieldsList();
             }
         }
@@ -1065,7 +1084,7 @@ window.onload = initializeCRM;
                 fields.push(newField);
             }
             
-            await CRMData.save(crmData);
+            CRMData.save(crmData);
             hideFieldModal();
             
             // Update current view if needed
@@ -1100,7 +1119,7 @@ window.onload = initializeCRM;
             if (confirm(`Möchten Sie das Feld "${field.label}" wirklich löschen?`)) {
                 const index = fields.findIndex(f => f.id === fieldId);
                 fields.splice(index, 1);
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateFieldsList();
             }
         }
@@ -1149,7 +1168,7 @@ window.onload = initializeCRM;
             };
             
             crmData.tags.push(newTag);
-            await CRMData.save(crmData);
+            CRMData.save(crmData);
             
             document.getElementById('quick-tag-name').value = '';
             updateTagsList();
@@ -1216,7 +1235,7 @@ window.onload = initializeCRM;
                 crmData.tags.push(newTag);
             }
             
-            await CRMData.save(crmData);
+            CRMData.save(crmData);
             hideTagModal();
             updateTagsList();
         }
@@ -1253,7 +1272,7 @@ window.onload = initializeCRM;
                 // Remove tag from tags list
                 crmData.tags = crmData.tags.filter(t => t.id !== tagId);
                 
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateTagsList();
             }
         }
@@ -1265,6 +1284,8 @@ window.onload = initializeCRM;
             document.getElementById('total-companies').textContent = crmData.companies.length;
             document.getElementById('total-contacts').textContent = totalContacts;
             document.getElementById('total-reminders').textContent = crmData.reminders.length;
+            document.getElementById('total-products').textContent = crmData.products.length; // NEU
+            document.getElementById('total-invoices').textContent = crmData.invoices.length; // NEU
             document.getElementById('total-tags').textContent = crmData.tags.length;
         }
 
@@ -1295,7 +1316,7 @@ window.onload = initializeCRM;
                     if (data.companies !== undefined && data.reminders !== undefined) {
                         if (confirm('Möchten Sie wirklich alle Daten durch das Backup ersetzen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                             crmData = { ...CRMData.getDefaultData(), ...data };
-                            await CRMData.save(crmData);
+                            CRMData.save(crmData);
                             updateSystemStats();
                             updateFieldsList();
                             updateTagsList();
@@ -1317,6 +1338,9 @@ window.onload = initializeCRM;
             const exportData = {
                 companies: crmData.companies,
                 reminders: crmData.reminders,
+                products: crmData.products, // NEU
+                invoices: crmData.invoices, // NEU
+                invoiceSettings: crmData.invoiceSettings, // NEU
                 tags: crmData.tags,
                 companyFields: crmData.companyFields,
                 contactFields: crmData.contactFields,
@@ -1325,6 +1349,8 @@ window.onload = initializeCRM;
                     totalCompanies: crmData.companies.length,
                     totalContacts: crmData.companies.reduce((sum, c) => sum + (c.contacts || []).length, 0),
                     totalReminders: crmData.reminders.length,
+                    totalProducts: crmData.products.length, // NEU
+                    totalInvoices: crmData.invoices.length, // NEU
                     totalTags: crmData.tags.length
                 }
             };
@@ -1341,7 +1367,7 @@ window.onload = initializeCRM;
         function resetReminders() {
             if (confirm('Möchten Sie wirklich alle Erinnerungen löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                 crmData.reminders = [];
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateSystemStats();
                 alert('Alle Erinnerungen wurden gelöscht.');
             }
@@ -1351,7 +1377,7 @@ window.onload = initializeCRM;
             if (confirm('Möchten Sie wirklich alle Unternehmen und Kontakte löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
                 crmData.companies = [];
                 crmData.reminders = []; // Also remove reminders as they reference companies
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateSystemStats();
                 alert('Alle Unternehmen und zugehörigen Daten wurden gelöscht.');
             }
@@ -1359,9 +1385,9 @@ window.onload = initializeCRM;
 
         function resetAllData() {
             if (confirm('Möchten Sie wirklich ALLE Daten löschen und das System auf die Standardkonfiguration zurücksetzen? Diese Aktion kann NICHT rückgängig gemacht werden!')) {
-                if (confirm('Sind Sie ABSOLUT SICHER? Alle Unternehmen, Kontakte, Erinnerungen und benutzerdefinierten Felder gehen verloren!')) {
+                if (confirm('Sind Sie ABSOLUT SICHER? Alle Unternehmen, Kontakte, Erinnerungen, Produkte, Rechnungen und benutzerdefinierten Felder gehen verloren!')) {
                     crmData = CRMData.getDefaultData();
-                    await CRMData.save(crmData);
+                    CRMData.save(crmData);
                     updateSystemStats();
                     updateFieldsList();
                     updateTagsList();
