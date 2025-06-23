@@ -106,9 +106,6 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
         
         .button:hover {
@@ -390,6 +387,12 @@
                         <a href="companies.html" class="nav-button active">
                             🏢 Unternehmen
                         </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -443,7 +446,10 @@
                             <div class="card" style="margin-bottom: 24px;">
                                 <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
                                     <h2 id="company-title" style="font-size: 20px; font-weight: 600;"></h2>
-                                    <div style="margin-left: auto;">
+                                    <div style="margin-left: auto; display: flex; gap: 8px;">
+                                        <button class="button" onclick="createInvoiceForCompany()" style="background-color: #059669; margin-right: 8px;">
+                                            💰 Rechnung erstellen
+                                        </button>
                                         <button class="button" onclick="editCompany()" style="margin-right: 8px;">
                                             ✏️ Bearbeiten
                                         </button>
@@ -535,7 +541,7 @@
     </div>
 
     <script>
-        // CRM Data Management (same as index.html)
+        // CRM Data Management (ERWEITERT mit allen Modulen)
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -543,6 +549,22 @@
                 return {
                     companies: [],
                     reminders: [],
+                    products: [], // NEU: Produkte hinzugefügt
+                    invoices: [], // NEU: Rechnungen hinzugefügt
+                    invoiceSettings: { // NEU: Rechnungseinstellungen hinzugefügt
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
                         { id: 2, name: 'Interessent', color: 'tag-blue' },
@@ -576,6 +598,10 @@
                         return {
                             ...defaultData,
                             ...parsed,
+                            // WICHTIG: Stelle sicher, dass alle neuen Felder existieren
+                            products: parsed.products || [],
+                            invoices: parsed.invoices || [],
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -610,22 +636,7 @@
             }
         }
 
-        let crmData = null;
-
-// Neue async Initialisierung
-async function initializeCRM() {
-    // Prüfe auf Migration von localStorage
-    await CRMData.migrateFromLocalStorage();
-    
-    // Lade Daten
-    crmData = await CRMData.load();
-    
-    // Starte UI Updates
-    updateDashboard(); // oder andere Update-Funktionen
-}
-
-// Starte CRM wenn Seite geladen ist
-window.onload = initializeCRM;
+        let crmData = CRMData.load();
         let selectedCompanyId = null;
         let editingCompany = null;
         let editingContact = null;
@@ -699,7 +710,7 @@ window.onload = initializeCRM;
                 return `
                     <div class="company-item ${selectedCompanyId === company.id ? 'selected' : ''}" 
                          onclick="selectCompany(${company.id})">
-                        <div style="display: flex; justify-between; align-items: start;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
                                 <div class="company-name">${company.name}</div>
                                 <div class="company-contacts">${company.contactCount} Kontakte</div>
@@ -888,6 +899,18 @@ window.onload = initializeCRM;
             `).join('');
         }
 
+        // NEW: Function to create invoice for selected company
+        function createInvoiceForCompany() {
+            if (!selectedCompanyId) {
+                alert('Bitte wählen Sie zuerst ein Unternehmen aus.');
+                return;
+            }
+            
+            // Store the company ID for the invoice creation page
+            localStorage.setItem('preselectedCompanyId', selectedCompanyId);
+            window.location.href = 'create-invoice.html';
+        }
+
         // Modal functions
         function showCompanyModal() {
             editingCompany = null;
@@ -1070,7 +1093,7 @@ window.onload = initializeCRM;
                 selectedCompanyId = newCompany.id;
             }
             
-            await CRMData.save(crmData);
+            CRMData.save(crmData);
             hideCompanyModal();
             updateCompanyList();
             if (selectedCompanyId) {
@@ -1121,7 +1144,7 @@ window.onload = initializeCRM;
             // Update company last activity
             crmData.companies[companyIndex].lastActivity = timestamp;
             
-            await CRMData.save(crmData);
+            CRMData.save(crmData);
             hideContactModal();
             updateCompanyList();
             updateContactsList();
@@ -1158,7 +1181,7 @@ window.onload = initializeCRM;
                     document.getElementById('no-selection').classList.remove('hidden');
                 }
                 
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateCompanyList();
                 updateReminderCount();
             }
@@ -1176,7 +1199,7 @@ window.onload = initializeCRM;
                 // Update company last activity
                 crmData.companies[companyIndex].lastActivity = CRMData.getCurrentTimestamp();
                 
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateCompanyList();
                 updateContactsList();
             }
@@ -1189,8 +1212,19 @@ window.onload = initializeCRM;
 
         // Initialize
         window.onload = function() {
+            // Check if we should preselect a company (from search)
+            const preselectedId = localStorage.getItem('selectedCompanyId');
+            if (preselectedId) {
+                selectedCompanyId = parseInt(preselectedId);
+                localStorage.removeItem('selectedCompanyId');
+            }
+            
             updateCompanyList();
             updateReminderCount();
+            
+            if (selectedCompanyId) {
+                showCompanyDetails();
+            }
         };
 
         // Close modals when clicking outside
