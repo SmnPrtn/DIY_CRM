@@ -456,6 +456,12 @@
                         <a href="companies.html" class="nav-button">
                             🏢 Unternehmen
                         </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -578,7 +584,7 @@
     </div>
 
     <script>
-        // CRM Data Management (same as previous files)
+        // CRM Data Management (VOLLSTÄNDIG mit allen Modulen)
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -586,6 +592,22 @@
                 return {
                     companies: [],
                     reminders: [],
+                    products: [], // NEU: Produkte hinzugefügt
+                    invoices: [], // NEU: Rechnungen hinzugefügt
+                    invoiceSettings: { // NEU: Rechnungseinstellungen hinzugefügt
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
                         { id: 2, name: 'Interessent', color: 'tag-blue' },
@@ -619,6 +641,10 @@
                         return {
                             ...defaultData,
                             ...parsed,
+                            // WICHTIG: Stelle sicher, dass alle neuen Felder existieren
+                            products: parsed.products || [],
+                            invoices: parsed.invoices || [],
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -653,22 +679,7 @@
             }
         }
 
-        let crmData = null;
-
-// Neue async Initialisierung
-async function initializeCRM() {
-    // Prüfe auf Migration von localStorage
-    await CRMData.migrateFromLocalStorage();
-    
-    // Lade Daten
-    crmData = await CRMData.load();
-    
-    // Starte UI Updates
-    updateDashboard(); // oder andere Update-Funktionen
-}
-
-// Starte CRM wenn Seite geladen ist
-window.onload = initializeCRM;
+        let crmData = CRMData.load();
         let currentFilter = 'all';
         let editingReminder = null;
 
@@ -1049,8 +1060,7 @@ window.onload = initializeCRM;
                 crmData.companies[companyIndex].lastActivity = timestamp;
             }
             
-            await CRMData.save(crmData);
-
+            CRMData.save(crmData);
             hideReminderModal();
             updateStatistics();
             updateRemindersList();
@@ -1078,7 +1088,7 @@ window.onload = initializeCRM;
         function deleteReminder(reminderId) {
             if (confirm('Möchten Sie diese Erinnerung wirklich löschen?')) {
                 crmData.reminders = crmData.reminders.filter(r => r.id !== reminderId);
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateStatistics();
                 updateRemindersList();
             }
@@ -1088,7 +1098,7 @@ window.onload = initializeCRM;
             const reminder = crmData.reminders.find(r => r.id === reminderId);
             if (reminder) {
                 reminder.completed = !reminder.completed;
-                await CRMData.save(crmData);
+                CRMData.save(crmData);
                 updateStatistics();
                 updateRemindersList();
             }
