@@ -200,6 +200,8 @@
             padding: 24px;
             background-color: white;
             margin-top: 24px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .invoice-header-preview {
@@ -209,6 +211,12 @@
             margin-bottom: 32px;
             padding-bottom: 16px;
             border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .company-logo {
+            max-width: 120px;
+            max-height: 60px;
+            margin-bottom: 12px;
         }
         
         .company-info {
@@ -234,6 +242,12 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #374151;
+        }
+        
+        .customer-number {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
         }
         
         .items-table {
@@ -273,7 +287,7 @@
         
         .invoice-total {
             margin-left: auto;
-            width: 250px;
+            width: 300px;
         }
         
         .total-line {
@@ -288,6 +302,28 @@
             padding-top: 8px;
             font-weight: 600;
             font-size: 16px;
+        }
+        
+        .invoice-footer {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .qr-code {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            text-align: center;
         }
         
         .items-builder {
@@ -442,6 +478,25 @@
             content: '• ';
         }
         
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .info-text {
+            color: #1e40af;
+            font-size: 14px;
+        }
+        
         .hidden {
             display: none;
         }
@@ -475,6 +530,11 @@
             .action-buttons {
                 flex-direction: column;
             }
+            
+            .invoice-footer {
+                flex-direction: column;
+                gap: 16px;
+            }
         }
     </style>
 </head>
@@ -488,7 +548,7 @@
                         Neue Rechnung erstellen
                     </h1>
                     <p style="color: #6b7280;">
-                        Erstelle eine neue Rechnung für deine Kunden
+                        Erstelle eine professionelle Rechnung mit allen Details
                     </p>
                 </div>
                 <div style="display: flex; gap: 12px;">
@@ -519,6 +579,9 @@
                         <a href="invoices.html" class="nav-button">
                             💰 Rechnungen
                         </a>
+                        <a href="create-invoice.html" class="nav-button active">
+                            ✏️ Neue Rechnung
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -541,10 +604,21 @@
                     </ul>
                 </div>
 
+                <!-- Missing Configuration Warning -->
+                <div id="config-warning" class="info-box hidden">
+                    <div class="info-title">⚙️ Konfiguration erforderlich</div>
+                    <div class="info-text" id="config-warning-text">
+                        Einige Einstellungen sind noch nicht konfiguriert.
+                    </div>
+                    <button class="button" onclick="window.open('invoice-admin.html', '_blank')" style="margin-top: 8px;">
+                        Jetzt konfigurieren
+                    </button>
+                </div>
+
                 <!-- Basic Information -->
                 <div class="card" style="margin-bottom: 24px;">
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
-                        Grunddaten
+                        📋 Grunddaten
                     </h3>
                     
                     <div class="form-row">
@@ -580,7 +654,7 @@
                 <!-- Customer Selection -->
                 <div class="card" style="margin-bottom: 24px;">
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
-                        Kunde
+                        👤 Kunde
                     </h3>
                     
                     <div class="form-row">
@@ -598,13 +672,20 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div id="customer-info-display" class="hidden" style="background-color: #f9fafb; padding: 12px; border-radius: 6px; margin-top: 12px;">
+                        <div style="font-size: 14px; color: #6b7280;">
+                            <div id="customer-number-display"></div>
+                            <div id="customer-address-display"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Invoice Items -->
                 <div class="card" style="margin-bottom: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h3 style="font-size: 18px; font-weight: 600; color: #1f2937;">
-                            Rechnungspositionen
+                            📦 Rechnungspositionen
                         </h3>
                         <button class="button button-green" onclick="addInvoiceItem()">
                             ➕ Position hinzufügen
@@ -627,10 +708,10 @@
                     </div>
                 </div>
 
-                <!-- Notes -->
+                <!-- Notes & Payment Terms -->
                 <div class="card" style="margin-bottom: 24px;">
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
-                        Notizen & Bemerkungen
+                        📝 Notizen & Zahlungskonditionen
                     </h3>
                     
                     <div class="form-group">
@@ -642,7 +723,12 @@
                     <div class="form-group">
                         <label class="form-label">Zahlungshinweis</label>
                         <textarea id="payment-terms" class="form-input form-textarea" 
-                                 placeholder="z.B. Zahlung binnen 30 Tagen ohne Abzug."></textarea>
+                                 placeholder="Zahlungskonditionen..."></textarea>
+                        <div style="margin-top: 8px;">
+                            <button class="button button-gray" onclick="loadDefaultPaymentTerms()" style="font-size: 12px; padding: 4px 8px;">
+                                📋 Standard-Text laden
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -659,7 +745,7 @@
                     </button>
                 </div>
 
-                <!-- Live Preview (MOVED BELOW) -->
+                <!-- Live Preview -->
                 <div class="card invoice-preview">
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
                         📄 Live-Vorschau
@@ -674,7 +760,7 @@
     </div>
 
     <script>
-        // CRM Data Management (same structure as other files)
+        // Enhanced CRM Data Management
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -685,18 +771,52 @@
                     products: [],
                     invoices: [],
                     invoiceSettings: {
-                        nextInvoiceNumber: 1,
-                        invoiceNumberPrefix: 'R-',
-                        defaultPaymentTerms: 30,
+                        // Company Info
                         companyInfo: {
                             name: 'Ihre Firma GmbH',
+                            legalForm: '',
                             address: 'Musterstraße 123\n1234 Wien',
                             phone: '+43 1 234567',
                             email: 'office@ihrefirma.at',
-                            website: 'www.ihrefirma.at',
+                            website: '',
                             taxNumber: 'ATU12345678',
-                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
-                        }
+                            registrationNumber: '',
+                            logo: null
+                        },
+                        // Invoice Settings
+                        invoiceNumberPrefix: 'R-',
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPadding: 4,
+                        defaultPaymentTerms: 30,
+                        defaultPaymentText: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                        defaultDiscountText: '',
+                        // Customer Settings
+                        customerNumberPrefix: 'K-',
+                        nextCustomerNumber: 10030,
+                        customerNumberPadding: 5,
+                        // Template Settings
+                        selectedTemplate: 'classic',
+                        primaryColor: '#2563eb',
+                        accentColor: '#059669',
+                        enableQRCode: true,
+                        qrCodeType: 'payment',
+                        qrCustomContent: '',
+                        signatureImage: null,
+                        // Payment Settings
+                        bankInfo: {
+                            bankName: '',
+                            accountHolder: '',
+                            iban: '',
+                            bic: ''
+                        },
+                        paymentMethods: {
+                            acceptPaypal: false,
+                            paypalEmail: '',
+                            acceptCrypto: false,
+                            cryptoAddress: ''
+                        },
+                        footerFormat: 'single-line',
+                        customFooterText: ''
                     },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
@@ -772,8 +892,19 @@
             static generateInvoiceNumber() {
                 const settings = crmData.invoiceSettings;
                 const number = settings.nextInvoiceNumber;
+                const padding = settings.invoiceNumberPadding || 4;
+                const paddedNumber = padding > 0 ? number.toString().padStart(padding, '0') : number.toString();
                 settings.nextInvoiceNumber++;
-                return settings.invoiceNumberPrefix + number.toString().padStart(4, '0');
+                return settings.invoiceNumberPrefix + paddedNumber;
+            }
+            
+            static generateCustomerNumber() {
+                const settings = crmData.invoiceSettings;
+                const number = settings.nextCustomerNumber;
+                const padding = settings.customerNumberPadding || 5;
+                const paddedNumber = padding > 0 ? number.toString().padStart(padding, '0') : number.toString();
+                settings.nextCustomerNumber++;
+                return settings.customerNumberPrefix + paddedNumber;
             }
         }
 
@@ -784,6 +915,8 @@
 
         // Initialize
         function initializePage() {
+            checkConfiguration();
+            
             // Check if editing existing invoice
             const urlParams = new URLSearchParams(window.location.search);
             editingInvoiceId = urlParams.get('edit');
@@ -796,8 +929,42 @@
             }
             
             populateCompanyOptions();
+            ensureCustomerNumbers();
             updatePreview();
             updateReminderCount();
+        }
+
+        function checkConfiguration() {
+            const warnings = [];
+            const company = crmData.invoiceSettings.companyInfo;
+            
+            if (!company.name || !company.address || !company.phone || !company.email) {
+                warnings.push('Firmendaten sind unvollständig');
+            }
+            
+            if (!crmData.invoiceSettings.bankInfo.iban) {
+                warnings.push('Bankverbindung ist nicht konfiguriert');
+            }
+            
+            if (warnings.length > 0) {
+                const warningElement = document.getElementById('config-warning');
+                document.getElementById('config-warning-text').innerHTML = 
+                    'Folgende Einstellungen sollten konfiguriert werden:<br>• ' + warnings.join('<br>• ');
+                warningElement.classList.remove('hidden');
+            }
+        }
+
+        function ensureCustomerNumbers() {
+            let updated = false;
+            crmData.companies.forEach(company => {
+                if (!company.customerNumber) {
+                    company.customerNumber = CRMData.generateCustomerNumber();
+                    updated = true;
+                }
+            });
+            if (updated) {
+                CRMData.save(crmData);
+            }
         }
 
         function setupNewInvoice() {
@@ -809,10 +976,15 @@
             document.getElementById('invoice-number').value = CRMData.generateInvoiceNumber();
             document.getElementById('invoice-date').value = today;
             document.getElementById('due-date').value = dueDate;
-            document.getElementById('payment-terms').value = `Zahlung binnen ${crmData.invoiceSettings.defaultPaymentTerms} Tagen ohne Abzug.`;
+            
+            loadDefaultPaymentTerms();
             
             // Add one empty item to start
             addInvoiceItem();
+        }
+
+        function loadDefaultPaymentTerms() {
+            document.getElementById('payment-terms').value = crmData.invoiceSettings.defaultPaymentText || '';
         }
 
         function loadExistingInvoice(invoiceId) {
@@ -843,23 +1015,38 @@
             const companySelect = document.getElementById('company-select');
             companySelect.innerHTML = '<option value="">Unternehmen auswählen...</option>' +
                 crmData.companies.map(company => 
-                    `<option value="${company.id}">${company.name}</option>`
+                    `<option value="${company.id}">${company.name} (${company.customerNumber || 'keine Nr.'})</option>`
                 ).join('');
         }
 
         function updateContactOptions() {
             const companyId = document.getElementById('company-select').value;
             const contactSelect = document.getElementById('contact-select');
+            const customerInfoDisplay = document.getElementById('customer-info-display');
             
             contactSelect.innerHTML = '<option value="">Ansprechpartner auswählen...</option>';
             
             if (companyId) {
                 const company = crmData.companies.find(c => c.id == companyId);
-                if (company && company.contacts) {
-                    company.contacts.forEach(contact => {
-                        contactSelect.innerHTML += `<option value="${contact.id}">${contact.name} (${contact.position || 'Position nicht angegeben'})</option>`;
-                    });
+                if (company) {
+                    // Update contacts
+                    if (company.contacts) {
+                        company.contacts.forEach(contact => {
+                            contactSelect.innerHTML += `<option value="${contact.id}">${contact.name} (${contact.position || 'Position nicht angegeben'})</option>`;
+                        });
+                    }
+                    
+                    // Show customer info
+                    document.getElementById('customer-number-display').innerHTML = 
+                        `<strong>Kundennummer:</strong> ${company.customerNumber || 'Nicht zugewiesen'}`;
+                    document.getElementById('customer-address-display').innerHTML = 
+                        `<strong>Adresse:</strong> ${company.address || 'Nicht angegeben'}`;
+                    customerInfoDisplay.classList.remove('hidden');
+                } else {
+                    customerInfoDisplay.classList.add('hidden');
                 }
+            } else {
+                customerInfoDisplay.classList.add('hidden');
             }
             
             updatePreview();
@@ -877,7 +1064,7 @@
                 discount: 0,
                 vatRate: '19',
                 totalPrice: '0.00',
-                inputMode: 'product' // 'product' or 'custom'
+                inputMode: 'product'
             };
             
             invoiceItems.push(newItem);
@@ -897,7 +1084,6 @@
             container.innerHTML = invoiceItems.map(item => `
                 <div class="item-row" data-item-id="${item.id}">
                     <div class="product-select">
-                        <!-- Toggle zwischen Produktsuche und Freieingabe -->
                         <div class="input-mode-toggle">
                             <button class="input-mode-option ${item.inputMode === 'product' ? 'active' : ''}" 
                                     onclick="switchInputMode(${item.id}, 'product')">
@@ -909,7 +1095,6 @@
                             </button>
                         </div>
                         
-                        <!-- Produktsuche oder Freieingabe -->
                         ${item.inputMode === 'product' ? `
                             <input type="text" 
                                    class="form-input" 
@@ -919,7 +1104,6 @@
                                    onblur="hideProductDropdown(${item.id})"
                                    onfocus="showProductDropdown(this, ${item.id})">
                             <div class="product-dropdown hidden" id="dropdown-${item.id}">
-                                <!-- Product options will be populated here -->
                             </div>
                         ` : `
                             <input type="text" 
@@ -970,7 +1154,6 @@
             if (item) {
                 item.inputMode = mode;
                 if (mode === 'custom') {
-                    // Reset product-specific data when switching to custom
                     item.productId = null;
                 }
                 renderInvoiceItems();
@@ -1084,7 +1267,6 @@
                 const discountAmount = basePrice * (parseFloat(item.discount) / 100);
                 item.totalPrice = (basePrice - discountAmount).toFixed(2);
                 
-                // Update the display
                 const row = document.querySelector(`[data-item-id="${itemId}"]`);
                 if (row) {
                     const totalInput = row.querySelector('input[readonly]');
@@ -1098,7 +1280,6 @@
         function calculateTotals() {
             const totalNet = invoiceItems.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0);
             
-            // Calculate weighted average VAT rate
             let totalVat = 0;
             invoiceItems.forEach(item => {
                 const itemVat = parseFloat(item.totalPrice) * (parseFloat(item.vatRate) / 100);
@@ -1116,13 +1297,63 @@
             };
         }
 
+        function generateQRCode() {
+            const settings = crmData.invoiceSettings;
+            let qrContent = '';
+            
+            switch(settings.qrCodeType) {
+                case 'payment':
+                    const totals = calculateTotals();
+                    qrContent = `BCD\n001\n1\nSCT\n${settings.bankInfo.bic}\n${settings.companyInfo.name}\n${settings.bankInfo.iban}\nEUR${totals.totalGross}\n\n\nRechnung ${document.getElementById('invoice-number').value}`;
+                    break;
+                case 'contact':
+                    qrContent = `BEGIN:VCARD\nVERSION:3.0\nFN:${settings.companyInfo.name}\nTEL:${settings.companyInfo.phone}\nEMAIL:${settings.companyInfo.email}\nEND:VCARD`;
+                    break;
+                case 'website':
+                    qrContent = settings.companyInfo.website || '';
+                    break;
+                case 'custom':
+                    qrContent = settings.qrCustomContent || '';
+                    break;
+            }
+            
+            return qrContent;
+        }
+
+        function generateFooter() {
+            const company = crmData.invoiceSettings.companyInfo;
+            const bank = crmData.invoiceSettings.bankInfo;
+            const format = crmData.invoiceSettings.footerFormat;
+            
+            let footer = '';
+            
+            switch(format) {
+                case 'single-line':
+                    footer = `${company.name} | ${bank.bankName} | IBAN: ${bank.iban} | BIC: ${bank.bic} | ${company.taxNumber}`;
+                    break;
+                case 'multi-line':
+                    footer = `${company.name}<br>Bankverbindung: ${bank.bankName}<br>IBAN: ${bank.iban} | BIC: ${bank.bic}<br>${company.taxNumber}`;
+                    break;
+                case 'custom':
+                    footer = crmData.invoiceSettings.customFooterText
+                        .replace('{company_name}', company.name)
+                        .replace('{bank_name}', bank.bankName)
+                        .replace('{iban}', bank.iban)
+                        .replace('{bic}', bank.bic)
+                        .replace('{tax_number}', company.taxNumber);
+                    break;
+            }
+            
+            return footer;
+        }
+
         function updatePreview() {
             const totals = calculateTotals();
             const companyId = document.getElementById('company-select').value;
             const contactId = document.getElementById('contact-select').value;
-            
             const company = companyId ? crmData.companies.find(c => c.id == companyId) : null;
             const contact = company && contactId ? company.contacts.find(c => c.id == contactId) : null;
+            const companyInfo = crmData.invoiceSettings.companyInfo;
             
             const previewContainer = document.getElementById('invoice-preview-content');
             
@@ -1130,10 +1361,13 @@
                 <!-- Invoice Header -->
                 <div class="invoice-header-preview">
                     <div class="company-info">
-                        <strong>${crmData.invoiceSettings.companyInfo.name}</strong><br>
-                        ${crmData.invoiceSettings.companyInfo.address.replace(/\n/g, '<br>')}<br>
-                        ${crmData.invoiceSettings.companyInfo.phone}<br>
-                        ${crmData.invoiceSettings.companyInfo.email}
+                        ${companyInfo.logo ? `<img src="${companyInfo.logo}" alt="Logo" class="company-logo">` : ''}
+                        <strong>${companyInfo.name}</strong><br>
+                        ${companyInfo.address.replace(/\n/g, '<br>')}<br>
+                        Tel: ${companyInfo.phone}<br>
+                        E-Mail: ${companyInfo.email}<br>
+                        ${companyInfo.website ? `Web: ${companyInfo.website}<br>` : ''}
+                        ${companyInfo.taxNumber ? `${companyInfo.taxNumber}` : ''}
                     </div>
                     <div class="invoice-number-preview">
                         <div class="invoice-number-large">${document.getElementById('invoice-number').value}</div>
@@ -1147,6 +1381,7 @@
                 <div class="customer-info">
                     <h4>Rechnungsempfänger:</h4>
                     ${company ? `
+                        <div class="customer-number">Kundennummer: ${company.customerNumber || 'Nicht zugewiesen'}</div>
                         <div style="color: #6b7280; line-height: 1.5;">
                             <strong>${company.name}</strong><br>
                             ${company.address ? company.address + '<br>' : ''}
@@ -1162,6 +1397,7 @@
                             <th>Position</th>
                             <th class="text-right">Menge</th>
                             <th class="text-right">Einzelpreis</th>
+                            <th class="text-right">USt%</th>
                             <th class="text-right">Gesamt</th>
                         </tr>
                     </thead>
@@ -1174,11 +1410,12 @@
                                 </td>
                                 <td class="text-right">${item.quantity} ${item.unit}</td>
                                 <td class="text-right">${CRMData.formatCurrency(parseFloat(item.unitPrice))}</td>
+                                <td class="text-right">${item.vatRate}%</td>
                                 <td class="text-right">${CRMData.formatCurrency(parseFloat(item.totalPrice))}</td>
                             </tr>
                         `).join('') : `
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #9ca3af; padding: 24px;">
+                                <td colspan="5" style="text-align: center; color: #9ca3af; padding: 24px;">
                                     Keine Positionen hinzugefügt
                                 </td>
                             </tr>
@@ -1204,16 +1441,31 @@
                 
                 ${document.getElementById('payment-terms').value ? `
                     <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280;">
-                        ${document.getElementById('payment-terms').value}
+                        ${document.getElementById('payment-terms').value.replace(/\n/g, '<br>')}
                     </div>
                 ` : ''}
+                
+                <!-- Footer -->
+                <div class="invoice-footer">
+                    <div style="flex: 1;">
+                        ${generateFooter()}
+                    </div>
+                    ${crmData.invoiceSettings.enableQRCode ? `
+                        <div class="qr-code">
+                            QR-Code<br>
+                            <small style="font-size: 8px;">
+                                ${crmData.invoiceSettings.qrCodeType === 'payment' ? 'Zahlung' : 
+                                  crmData.invoiceSettings.qrCodeType === 'contact' ? 'Kontakt' : 'Info'}
+                            </small>
+                        </div>
+                    ` : ''}
+                </div>
             `;
         }
 
         function validateInvoice() {
             validationErrors = [];
             
-            // Basic validation
             if (!document.getElementById('invoice-date').value) {
                 validationErrors.push('Rechnungsdatum ist erforderlich');
             }
@@ -1230,7 +1482,6 @@
                 validationErrors.push('Mindestens eine Rechnungsposition ist erforderlich');
             }
             
-            // Validate items
             invoiceItems.forEach((item, index) => {
                 if (!item.productName.trim()) {
                     validationErrors.push(`Position ${index + 1}: Produktname ist erforderlich`);
@@ -1302,18 +1553,17 @@
                 vatRate: totals.avgVatRate,
                 notes: document.getElementById('invoice-notes').value,
                 paymentTerms: document.getElementById('payment-terms').value,
+                qrCode: generateQRCode(),
                 updatedAt: timestamp
             };
             
             if (editingInvoiceId) {
-                // Update existing invoice
                 const index = crmData.invoices.findIndex(i => i.id == editingInvoiceId);
                 crmData.invoices[index] = {
                     ...crmData.invoices[index],
                     ...invoiceData
                 };
             } else {
-                // Create new invoice
                 const newInvoice = {
                     id: Date.now(),
                     ...invoiceData,
@@ -1328,21 +1578,21 @@
 
         function saveDraft() {
             if (saveInvoice('draft')) {
-                alert('Rechnung als Entwurf gespeichert!');
+                alert('✅ Rechnung als Entwurf gespeichert!');
                 goBackToInvoices();
             }
         }
 
         function saveAndSend() {
             if (saveInvoice('sent')) {
-                alert('Rechnung gespeichert und als versendet markiert!');
+                alert('✅ Rechnung gespeichert und als versendet markiert!');
                 goBackToInvoices();
             }
         }
 
         function previewInvoice() {
             if (validateInvoice()) {
-                alert('PDF-Vorschau wird in der nächsten Version implementiert.');
+                alert('📄 PDF-Vorschau wird in der nächsten Version implementiert.');
             } else {
                 showValidationErrors();
             }
