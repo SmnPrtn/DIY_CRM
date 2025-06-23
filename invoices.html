@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM - Rechnungen</title>
+    <!-- jsPDF Library für PDF-Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -357,6 +359,12 @@
             margin-bottom: 16px;
         }
         
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
         .invoice-detail {
             border-bottom: 1px solid #f3f4f6;
             padding-bottom: 16px;
@@ -417,6 +425,16 @@
             display: none;
         }
         
+        .success-message {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+            color: #047857;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             .grid-cols-12 {
                 grid-template-columns: 1fr;
@@ -470,7 +488,7 @@
                         Rechnungen
                     </h1>
                     <p style="color: #6b7280;">
-                        Verwalte und verfolge alle deine Rechnungen
+                        Verwalte und verfolge alle deine Rechnungen mit PDF-Export
                     </p>
                 </div>
                 <button class="button" onclick="createNewInvoice()">
@@ -496,6 +514,9 @@
                         <a href="invoices.html" class="nav-button active">
                             💰 Rechnungen
                         </a>
+                        <a href="create-invoice.html" class="nav-button">
+                            ✏️ Neue Rechnung
+                        </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
                         </a>
@@ -505,12 +526,22 @@
                         <a href="admin.html" class="nav-button">
                             🛡️ Admin
                         </a>
+                        <div style="border-top: 1px solid #e5e7eb; margin: 16px 0; padding-top: 16px;">
+                            <a href="invoice-admin.html" class="nav-button">
+                                💰 Rechnungs-Admin
+                            </a>
+                        </div>
                     </nav>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-span-9">
+                <!-- Success Message -->
+                <div id="success-message" class="success-message">
+                    ✅ PDF erfolgreich erstellt!
+                </div>
+                
                 <!-- Statistics -->
                 <div class="grid grid-cols-4" style="margin-bottom: 24px;">
                     <div class="stat-card">
@@ -600,6 +631,9 @@
                     <button class="button" onclick="editInvoice()" id="edit-invoice-btn">
                         ✏️ Bearbeiten
                     </button>
+                    <button class="button button-green" onclick="downloadInvoicePDF()" id="download-pdf-btn">
+                        📄 PDF downloaden
+                    </button>
                     <button class="button button-gray" onclick="hideInvoiceDetailModal()">
                         ✕ Schließen
                     </button>
@@ -613,7 +647,7 @@
     </div>
 
     <script>
-        // CRM Data Management (erweitert um Rechnungen)
+        // Enhanced CRM Data Management with PDF Export
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -622,20 +656,34 @@
                     companies: [],
                     reminders: [],
                     products: [],
-                    invoices: [], // Neue Rechnungen
+                    invoices: [],
                     invoiceSettings: {
-                        nextInvoiceNumber: 1,
-                        invoiceNumberPrefix: 'R-',
-                        defaultPaymentTerms: 30,
+                        // Company Info
                         companyInfo: {
-                            name: 'Ihre Firma GmbH',
-                            address: 'Musterstraße 123\n1234 Wien',
-                            phone: '+43 1 234567',
-                            email: 'office@ihrefirma.at',
-                            website: 'www.ihrefirma.at',
-                            taxNumber: 'ATU12345678',
-                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
-                        }
+                            name: 'Simon Brenner Kernbohrtechnik',
+                            address: 'Ruprechtsberg 20\n4761 Enzenkirchen',
+                            phone: '+43 676 651 60 92',
+                            email: 'office@kernbohrtechnik.at',
+                            website: 'www.kernbohrtechnik.at',
+                            taxNumber: 'ATU 75111834'
+                        },
+                        // Invoice Settings
+                        invoiceNumberPrefix: 'R-',
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPadding: 4,
+                        defaultPaymentTerms: 30,
+                        defaultPaymentText: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                        // Customer Settings
+                        customerNumberPrefix: 'K-',
+                        nextCustomerNumber: 10030,
+                        customerNumberPadding: 5,
+                        // Bank Info
+                        bankInfo: {
+                            bankName: 'Sparkasse OÖ',
+                            iban: 'AT 33 2032 0321 0051 6306',
+                            bic: 'ASPKAT2LXXX'
+                        },
+                        footerFormat: 'single-line'
                     },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
@@ -708,17 +756,230 @@
                 return new Date(dateString).toLocaleDateString('de-DE');
             }
             
-            static generateInvoiceNumber() {
-                const settings = crmData.invoiceSettings;
-                const number = settings.nextInvoiceNumber;
-                settings.nextInvoiceNumber++;
-                return settings.invoiceNumberPrefix + number.toString().padStart(4, '0');
+            static formatNumber(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(amount);
             }
         }
 
         let crmData = CRMData.load();
         let filteredInvoices = [];
         let selectedInvoice = null;
+
+        // PDF Export Functions
+        function generateInvoicePDF(invoice) {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                const company = crmData.companies.find(c => c.id === invoice.companyId);
+                const contact = company && invoice.contactId ? 
+                    company.contacts.find(c => c.id === invoice.contactId) : null;
+                
+                const companyInfo = crmData.invoiceSettings.companyInfo;
+                const bankInfo = crmData.invoiceSettings.bankInfo;
+                
+                // Set font
+                doc.setFont('helvetica');
+                
+                // Header - Company Info
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text(companyInfo.name, 20, 30);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const companyLines = companyInfo.address.split('\n');
+                companyLines.push(`Tel. ${companyInfo.phone}`);
+                companyLines.push(companyInfo.email);
+                if (companyInfo.website) companyLines.push(companyInfo.website);
+                
+                let yPos = 40;
+                companyLines.forEach(line => {
+                    doc.text(line, 20, yPos);
+                    yPos += 5;
+                });
+                
+                // Invoice Number
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(37, 99, 235); // Blue color
+                doc.text(invoice.invoiceNumber, 150, 30);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Rechnungs Nr.: ${invoice.invoiceNumber.replace('R-', '')}`, 150, 40);
+                if (company && company.customerNumber) {
+                    doc.text(`Kunden Nr.: ${company.customerNumber.replace('K-', '')}`, 150, 45);
+                }
+                doc.text(`Datum: ${CRMData.formatDate(invoice.date)}`, 150, 50);
+                
+                // Customer Info
+                yPos = 80;
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Rechnungsempfänger:', 20, yPos);
+                
+                yPos += 10;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                if (company && company.customerNumber) {
+                    doc.text(`Kundennummer: ${company.customerNumber}`, 20, yPos);
+                    yPos += 8;
+                }
+                
+                if (company) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(company.name, 20, yPos);
+                    yPos += 5;
+                    
+                    doc.setFont('helvetica', 'normal');
+                    if (company.address) {
+                        const addressLines = company.address.split('\n');
+                        addressLines.forEach(line => {
+                            doc.text(line, 20, yPos);
+                            yPos += 5;
+                        });
+                    }
+                    
+                    if (contact) {
+                        yPos += 3;
+                        doc.text(`Ansprechpartner: ${contact.name}`, 20, yPos);
+                        yPos += 5;
+                    }
+                }
+                
+                // Greeting
+                yPos += 10;
+                doc.text('Sehr geehrte Damen und Herren,', 20, yPos);
+                yPos += 8;
+                doc.text('wir bedanken uns für den Auftrag und erlauben uns, die nachfolgenden', 20, yPos);
+                yPos += 5;
+                doc.text('Leistungen in Rechnung zu stellen.', 20, yPos);
+                
+                // Table Header
+                yPos += 15;
+                
+                // Table headers
+                doc.setFillColor(248, 250, 252);
+                doc.rect(20, yPos - 5, 170, 10, 'F');
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.text('Pos.', 22, yPos);
+                doc.text('Beschreibung', 35, yPos);
+                doc.text('Menge', 110, yPos);
+                doc.text('Einheit', 125, yPos);
+                doc.text('USt.', 140, yPos);
+                doc.text('Preis', 155, yPos);
+                doc.text('Summe', 175, yPos);
+                
+                yPos += 10;
+                
+                // Table items
+                doc.setFont('helvetica', 'normal');
+                invoice.items.forEach((item, index) => {
+                    doc.text((index + 1).toString(), 22, yPos);
+                    doc.text(item.productName, 35, yPos);
+                    if (item.description) {
+                        doc.setFontSize(8);
+                        doc.setTextColor(107, 114, 128);
+                        doc.text(item.description.substring(0, 40), 35, yPos + 3);
+                        doc.setFontSize(9);
+                        doc.setTextColor(0, 0, 0);
+                    }
+                    doc.text(CRMData.formatNumber(item.quantity), 115, yPos, { align: 'right' });
+                    doc.text(item.unit || 'Stk.', 127, yPos, { align: 'center' });
+                    doc.text(`${item.vatRate}%`, 145, yPos, { align: 'right' });
+                    doc.text(CRMData.formatNumber(parseFloat(item.unitPrice)), 165, yPos, { align: 'right' });
+                    doc.text(CRMData.formatNumber(parseFloat(item.totalPrice)), 185, yPos, { align: 'right' });
+                    
+                    yPos += item.description ? 12 : 8;
+                });
+                
+                // Totals
+                yPos += 10;
+                const totalsX = 130;
+                
+                doc.text('Nettosumme:', totalsX, yPos);
+                doc.text(CRMData.formatNumber(parseFloat(invoice.totalNet)), 185, yPos, { align: 'right' });
+                
+                yPos += 6;
+                doc.text(`${invoice.vatRate}% USt.:`, totalsX, yPos);
+                doc.text(CRMData.formatNumber(parseFloat(invoice.totalVat)), 185, yPos, { align: 'right' });
+                
+                yPos += 8;
+                doc.setFont('helvetica', 'bold');
+                doc.text('Gesamtsumme:', totalsX, yPos);
+                doc.text(`€ ${CRMData.formatNumber(parseFloat(invoice.totalGross))}`, 185, yPos, { align: 'right' });
+                
+                // Payment Terms
+                if (invoice.paymentTerms) {
+                    yPos += 15;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFillColor(249, 250, 251);
+                    doc.rect(20, yPos - 5, 170, 15, 'F');
+                    
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Zahlungsbedingungen:', 22, yPos);
+                    doc.setFont('helvetica', 'normal');
+                    yPos += 5;
+                    
+                    const paymentLines = invoice.paymentTerms.split('\n');
+                    paymentLines.forEach(line => {
+                        doc.text(line, 22, yPos);
+                        yPos += 5;
+                    });
+                }
+                
+                // Footer
+                const footerText = generateFooterText();
+                doc.setFontSize(8);
+                doc.text(footerText, 20, 280);
+                
+                // QR Code placeholder
+                doc.rect(170, 270, 15, 15);
+                doc.text('QR', 175, 278, { align: 'center' });
+                
+                // Save PDF
+                const fileName = `Rechnung_${invoice.invoiceNumber}_${invoice.date}.pdf`;
+                doc.save(fileName);
+                
+                return true;
+                
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                return false;
+            }
+        }
+
+        function generateFooterText() {
+            const company = crmData.invoiceSettings.companyInfo;
+            const bank = crmData.invoiceSettings.bankInfo;
+            const format = crmData.invoiceSettings.footerFormat;
+            
+            switch(format) {
+                case 'single-line':
+                    return `${company.name} | ${bank.bankName} | IBAN: ${bank.iban} | BIC: ${bank.bic} | ${company.taxNumber}`;
+                case 'multi-line':
+                    return `${company.name}\nBankverbindung: ${bank.bankName}\nIBAN: ${bank.iban} | BIC: ${bank.bic}\n${company.taxNumber}`;
+                default:
+                    return `${company.name} | ${bank.bankName} | IBAN: ${bank.iban} | BIC: ${bank.bic} | ${company.taxNumber}`;
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
 
         // Invoice Management
         function updateInvoicesList() {
@@ -863,7 +1124,7 @@
                             <button class="icon-button" onclick="duplicateInvoice(${invoice.id})" title="Duplizieren">
                                 📋
                             </button>
-                            <button class="icon-button" onclick="downloadInvoicePDF(${invoice.id})" title="PDF herunterladen">
+                            <button class="icon-button" onclick="downloadInvoicePDFDirect(${invoice.id})" title="PDF herunterladen">
                                 📄
                             </button>
                             <button class="icon-button delete" onclick="deleteInvoice(${invoice.id})" title="Löschen">
@@ -873,6 +1134,20 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function downloadInvoicePDFDirect(invoiceId) {
+            const invoice = crmData.invoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Rechnung nicht gefunden!');
+                return;
+            }
+            
+            if (generateInvoicePDF(invoice)) {
+                showSuccessMessage('✅ PDF erfolgreich erstellt und heruntergeladen!');
+            } else {
+                alert('❌ Fehler beim Erstellen der PDF. Bitte versuchen Sie es erneut.');
+            }
         }
 
         function getStatusLabel(status) {
@@ -1050,7 +1325,7 @@
                 const newInvoice = {
                     ...invoice,
                     id: Date.now(),
-                    invoiceNumber: CRMData.generateInvoiceNumber(),
+                    invoiceNumber: generateNextInvoiceNumber(),
                     status: 'draft',
                     date: new Date().toISOString().split('T')[0],
                     dueDate: new Date(Date.now() + (crmData.invoiceSettings.defaultPaymentTerms * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
@@ -1059,14 +1334,29 @@
                 };
                 
                 crmData.invoices.push(newInvoice);
+                crmData.invoiceSettings.nextInvoiceNumber++;
                 CRMData.save(crmData);
                 updateInvoicesList();
+                showSuccessMessage('✅ Rechnung erfolgreich dupliziert!');
             }
         }
 
-        function downloadInvoicePDF(invoiceId) {
-            // Placeholder for PDF generation
-            alert('PDF-Export wird in der nächsten Version implementiert.');
+        function generateNextInvoiceNumber() {
+            const settings = crmData.invoiceSettings;
+            const number = settings.nextInvoiceNumber;
+            const padding = settings.invoiceNumberPadding || 4;
+            const paddedNumber = padding > 0 ? number.toString().padStart(padding, '0') : number.toString();
+            return settings.invoiceNumberPrefix + paddedNumber;
+        }
+
+        function downloadInvoicePDF() {
+            if (!selectedInvoice) return;
+            
+            if (generateInvoicePDF(selectedInvoice)) {
+                showSuccessMessage('✅ PDF erfolgreich erstellt und heruntergeladen!');
+            } else {
+                alert('❌ Fehler beim Erstellen der PDF. Bitte versuchen Sie es erneut.');
+            }
         }
 
         function deleteInvoice(invoiceId) {
@@ -1081,6 +1371,8 @@
                 if (selectedInvoice && selectedInvoice.id === invoiceId) {
                     hideInvoiceDetailModal();
                 }
+                
+                showSuccessMessage('✅ Rechnung erfolgreich gelöscht!');
             }
         }
 
@@ -1103,66 +1395,39 @@
                 const sampleInvoices = [
                     {
                         id: 1,
-                        invoiceNumber: 'R-0001',
+                        invoiceNumber: 'R-0004',
                         companyId: crmData.companies[0].id,
                         contactId: crmData.companies[0].contacts ? crmData.companies[0].contacts[0]?.id : null,
-                        date: '2025-06-15',
-                        dueDate: '2025-07-15',
+                        date: '2025-06-23',
+                        dueDate: '2025-07-23',
                         status: 'sent',
                         items: [
                             {
                                 id: 1,
                                 productId: 1,
-                                productName: 'Webdesign-Paket',
-                                description: 'Komplettes Webdesign inkl. Responsive Design',
-                                quantity: 1,
-                                unit: 'Paket',
-                                unitPrice: '1500.00',
-                                vatRate: '19',
-                                totalPrice: '1500.00'
+                                productName: 'Fahrtenkosten',
+                                description: 'Anfahrt und Rückfahrt',
+                                quantity: 2,
+                                unit: 'Stück',
+                                unitPrice: '25.00',
+                                discount: 0,
+                                vatRate: '20',
+                                totalPrice: '50.00'
                             }
                         ],
-                        totalNet: '1500.00',
-                        totalVat: '285.00',
-                        totalGross: '1785.00',
-                        vatRate: '19',
-                        notes: 'Zahlung binnen 30 Tagen ohne Abzug.',
-                        createdAt: CRMData.getCurrentTimestamp(),
-                        updatedAt: CRMData.getCurrentTimestamp()
-                    },
-                    {
-                        id: 2,
-                        invoiceNumber: 'R-0002',
-                        companyId: crmData.companies[0].id,
-                        contactId: null,
-                        date: '2025-05-20',
-                        dueDate: '2025-06-20',
-                        status: 'paid',
-                        items: [
-                            {
-                                id: 1,
-                                productId: 2,
-                                productName: 'Beratungsstunde',
-                                description: 'IT-Beratung und Strategieentwicklung',
-                                quantity: 8,
-                                unit: 'Stunden',
-                                unitPrice: '120.00',
-                                vatRate: '19',
-                                totalPrice: '960.00'
-                            }
-                        ],
-                        totalNet: '960.00',
-                        totalVat: '182.40',
-                        totalGross: '1142.40',
-                        vatRate: '19',
-                        notes: '',
+                        totalNet: '50.00',
+                        totalVat: '10.00',
+                        totalGross: '59.50',
+                        vatRate: '20',
+                        notes: 'Hinfahrt & Retourfahrt',
+                        paymentTerms: 'Zahlung binnen 30 Tagen ohne Abzug.',
                         createdAt: CRMData.getCurrentTimestamp(),
                         updatedAt: CRMData.getCurrentTimestamp()
                     }
                 ];
                 
                 crmData.invoices = sampleInvoices;
-                crmData.invoiceSettings.nextInvoiceNumber = 3;
+                crmData.invoiceSettings.nextInvoiceNumber = 5;
                 CRMData.save(crmData);
             }
         }
