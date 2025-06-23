@@ -106,6 +106,9 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .button:hover {
@@ -128,6 +131,14 @@
             background-color: #4b5563;
         }
         
+        .button-orange {
+            background-color: #ea580c;
+        }
+        
+        .button-orange:hover {
+            background-color: #c2410c;
+        }
+        
         .company-item {
             padding: 16px;
             border-bottom: 1px solid #f3f4f6;
@@ -148,6 +159,16 @@
             font-weight: 500;
             color: #1f2937;
             margin-bottom: 4px;
+        }
+        
+        .customer-number {
+            font-size: 12px;
+            color: #6b7280;
+            background-color: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
         }
         
         .company-contacts {
@@ -198,8 +219,7 @@
         .form-input:focus {
             outline: none;
             border-color: #2563eb;
-            ring: 2px;
-            ring-color: #bfdbfe;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
         
         .form-input.error {
@@ -345,6 +365,87 @@
             color: #6b7280;
         }
         
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .info-text {
+            color: #1e40af;
+            font-size: 14px;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .invoice-history {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .invoice-number {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .invoice-amount {
+            font-weight: 600;
+            color: #059669;
+        }
+        
+        .invoice-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .status-draft { background-color: #f3f4f6; color: #6b7280; }
+        .status-sent { background-color: #dbeafe; color: #1e40af; }
+        .status-paid { background-color: #dcfce7; color: #166534; }
+        .status-overdue { background-color: #fecaca; color: #dc2626; }
+        
         @media (max-width: 768px) {
             .grid-cols-12 {
                 grid-template-columns: 1fr;
@@ -361,6 +462,10 @@
                 width: 95vw;
                 max-height: 95vh;
             }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -368,12 +473,24 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
-                Unternehmen verwalten
-            </h1>
-            <p style="color: #6b7280;">
-                Verwalte deine Unternehmen und deren Kontaktpersonen
-            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+                        Unternehmen verwalten
+                    </h1>
+                    <p style="color: #6b7280;">
+                        Verwalte deine Kunden mit automatischen Kundennummern und Rechnungshistorie
+                    </p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="button button-orange" onclick="assignMissingCustomerNumbers()">
+                        🔢 Kundennummern aktualisieren
+                    </button>
+                    <button class="button" onclick="showCompanyModal()">
+                        ➕ Neues Unternehmen
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-12">
@@ -392,6 +509,9 @@
                         </a>
                         <a href="invoices.html" class="nav-button">
                             💰 Rechnungen
+                        </a>
+                        <a href="create-invoice.html" class="nav-button">
+                            ✏️ Neue Rechnung
                         </a>
                         <a href="search.html" class="nav-button">
                             🔍 Suche
@@ -420,12 +540,22 @@
                                     </button>
                                 </div>
                                 
+                                <!-- Search Bar -->
+                                <div class="search-bar">
+                                    <div class="search-icon">🔍</div>
+                                    <input type="text" id="search-input" class="search-input" 
+                                           placeholder="Unternehmen suchen..." 
+                                           onkeyup="filterCompanies()">
+                                </div>
+                                
                                 <!-- Sort Controls -->
                                 <div class="sort-controls">
                                     <label style="font-size: 14px; color: #6b7280;">Sortierung:</label>
                                     <select id="sort-select" class="sort-select" onchange="updateCompanyList()">
                                         <option value="name-asc">Name (A-Z)</option>
                                         <option value="name-desc">Name (Z-A)</option>
+                                        <option value="customerNumber-asc">Kundennummer (aufsteigend)</option>
+                                        <option value="customerNumber-desc">Kundennummer (absteigend)</option>
                                         <option value="lastActivity-desc">Letzte Aktivität</option>
                                         <option value="createdAt-desc">Erstellungsdatum</option>
                                         <option value="contactCount-desc">Anzahl Kontakte</option>
@@ -444,16 +574,19 @@
                         <div id="company-details" class="hidden">
                             <!-- Company Info -->
                             <div class="card" style="margin-bottom: 24px;">
-                                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
-                                    <h2 id="company-title" style="font-size: 20px; font-weight: 600;"></h2>
-                                    <div style="margin-left: auto; display: flex; gap: 8px;">
-                                        <button class="button" onclick="createInvoiceForCompany()" style="background-color: #059669; margin-right: 8px;">
-                                            💰 Rechnung erstellen
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <h2 id="company-title" style="font-size: 20px; font-weight: 600; margin-bottom: 4px;"></h2>
+                                        <div id="company-customer-number" style="font-size: 14px; color: #6b7280;"></div>
+                                    </div>
+                                    <div class="quick-actions">
+                                        <button class="button button-green" onclick="createInvoiceForCompany()" title="Neue Rechnung">
+                                            💰 Rechnung
                                         </button>
-                                        <button class="button" onclick="editCompany()" style="margin-right: 8px;">
+                                        <button class="button" onclick="editCompany()" title="Bearbeiten">
                                             ✏️ Bearbeiten
                                         </button>
-                                        <button class="button" onclick="deleteCompany()" style="background-color: #dc2626;">
+                                        <button class="button" onclick="deleteCompany()" style="background-color: #dc2626;" title="Löschen">
                                             🗑️ Löschen
                                         </button>
                                     </div>
@@ -462,12 +595,22 @@
                                 <div id="company-info">
                                     <!-- Company information will be populated here -->
                                 </div>
+                                
+                                <!-- Invoice History -->
+                                <div id="invoice-history" class="invoice-history">
+                                    <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #374151;">
+                                        💰 Rechnungshistorie
+                                    </h4>
+                                    <div id="invoice-list">
+                                        <!-- Invoices will be populated here -->
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Contacts -->
                             <div class="card">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                    <h3 style="font-size: 18px; font-weight: 600;">Kontaktpersonen</h3>
+                                    <h3 style="font-size: 18px; font-weight: 600;">👥 Kontaktpersonen</h3>
                                     <button class="button button-green" onclick="showContactModal()">
                                         ➕ Kontakt
                                     </button>
@@ -485,9 +628,12 @@
                                 <h3 style="font-size: 18px; color: #6b7280; margin-bottom: 8px;">
                                     Kein Unternehmen ausgewählt
                                 </h3>
-                                <p style="color: #9ca3af;">
-                                    Wähle ein Unternehmen aus der Liste aus, um Details zu sehen
+                                <p style="color: #9ca3af; margin-bottom: 16px;">
+                                    Wähle ein Unternehmen aus der Liste aus, um Details und Rechnungshistorie zu sehen
                                 </p>
+                                <button class="button" onclick="showCompanyModal()">
+                                    Erstes Unternehmen erstellen
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -501,6 +647,13 @@
         <div class="modal-content">
             <h3 class="modal-title" id="company-modal-title">Neues Unternehmen</h3>
             
+            <div id="customer-number-preview" class="info-box hidden">
+                <div class="info-title">🔢 Automatische Kundennummer</div>
+                <div class="info-text">
+                    Neue Kundennummer: <strong id="preview-customer-number"></strong>
+                </div>
+            </div>
+            
             <form id="company-form">
                 <div id="company-form-fields">
                     <!-- Dynamic fields will be populated here -->
@@ -508,7 +661,7 @@
                 
                 <!-- Tags -->
                 <div class="form-group">
-                    <label class="form-label">Tags</label>
+                    <label class="form-label">🏷️ Tags</label>
                     <div id="tags-selection">
                         <!-- Tags will be populated here -->
                     </div>
@@ -516,8 +669,8 @@
             </form>
             
             <div class="modal-actions">
-                <button class="button" onclick="saveCompany()">Speichern</button>
-                <button class="button button-gray" onclick="hideCompanyModal()">Abbrechen</button>
+                <button class="button" onclick="saveCompany()">💾 Speichern</button>
+                <button class="button button-gray" onclick="hideCompanyModal()">✖ Abbrechen</button>
             </div>
         </div>
     </div>
@@ -534,14 +687,14 @@
             </form>
             
             <div class="modal-actions">
-                <button class="button button-green" onclick="saveContact()">Speichern</button>
-                <button class="button button-gray" onclick="hideContactModal()">Abbrechen</button>
+                <button class="button button-green" onclick="saveContact()">💾 Speichern</button>
+                <button class="button button-gray" onclick="hideContactModal()">✖ Abbrechen</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CRM Data Management (ERWEITERT mit allen Modulen)
+        // Enhanced CRM Data Management with Customer Numbers
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -549,20 +702,32 @@
                 return {
                     companies: [],
                     reminders: [],
-                    products: [], // NEU: Produkte hinzugefügt
-                    invoices: [], // NEU: Rechnungen hinzugefügt
-                    invoiceSettings: { // NEU: Rechnungseinstellungen hinzugefügt
-                        nextInvoiceNumber: 1,
-                        invoiceNumberPrefix: 'R-',
-                        defaultPaymentTerms: 30,
+                    products: [],
+                    invoices: [],
+                    invoiceSettings: {
+                        // Company Info
                         companyInfo: {
                             name: 'Ihre Firma GmbH',
                             address: 'Musterstraße 123\n1234 Wien',
                             phone: '+43 1 234567',
                             email: 'office@ihrefirma.at',
-                            website: 'www.ihrefirma.at',
-                            taxNumber: 'ATU12345678',
-                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                            taxNumber: 'ATU12345678'
+                        },
+                        // Invoice Settings
+                        invoiceNumberPrefix: 'R-',
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPadding: 4,
+                        defaultPaymentTerms: 30,
+                        defaultPaymentText: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                        // Customer Settings
+                        customerNumberPrefix: 'K-',
+                        nextCustomerNumber: 10030,
+                        customerNumberPadding: 5,
+                        // Bank Info
+                        bankInfo: {
+                            bankName: '',
+                            iban: '',
+                            bic: ''
                         }
                     },
                     tags: [
@@ -598,10 +763,9 @@
                         return {
                             ...defaultData,
                             ...parsed,
-                            // WICHTIG: Stelle sicher, dass alle neuen Felder existieren
-                            products: parsed.products || [],
                             invoices: parsed.invoices || [],
                             invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
+                            products: parsed.products || [],
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -634,6 +798,23 @@
                     minute: '2-digit'
                 });
             }
+            
+            static formatCurrency(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2
+                }).format(amount);
+            }
+            
+            static generateCustomerNumber() {
+                const settings = crmData.invoiceSettings;
+                const number = settings.nextCustomerNumber;
+                const padding = settings.customerNumberPadding || 5;
+                const paddedNumber = padding > 0 ? number.toString().padStart(padding, '0') : number.toString();
+                settings.nextCustomerNumber++;
+                return settings.customerNumberPrefix + paddedNumber;
+            }
         }
 
         let crmData = CRMData.load();
@@ -641,30 +822,95 @@
         let editingCompany = null;
         let editingContact = null;
         let validationErrors = {};
+        let filteredCompanies = [];
+
+        // Initialize customer numbers for existing companies
+        function ensureCustomerNumbers() {
+            let updated = false;
+            crmData.companies.forEach(company => {
+                if (!company.customerNumber) {
+                    company.customerNumber = CRMData.generateCustomerNumber();
+                    updated = true;
+                }
+            });
+            if (updated) {
+                CRMData.save(crmData);
+            }
+        }
+
+        function assignMissingCustomerNumbers() {
+            const companiesWithoutNumbers = crmData.companies.filter(c => !c.customerNumber);
+            
+            if (companiesWithoutNumbers.length === 0) {
+                alert('✅ Alle Unternehmen haben bereits Kundennummern!');
+                return;
+            }
+            
+            if (confirm(`${companiesWithoutNumbers.length} Unternehmen haben noch keine Kundennummer. Möchten Sie diese automatisch zuweisen?`)) {
+                companiesWithoutNumbers.forEach(company => {
+                    company.customerNumber = CRMData.generateCustomerNumber();
+                });
+                
+                CRMData.save(crmData);
+                updateCompanyList();
+                alert(`✅ ${companiesWithoutNumbers.length} Kundennummern erfolgreich zugewiesen!`);
+            }
+        }
 
         // Company Management
+        function filterCompanies() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredCompanies = [...crmData.companies];
+            } else {
+                filteredCompanies = crmData.companies.filter(company => 
+                    company.name.toLowerCase().includes(searchTerm) ||
+                    (company.customerNumber && company.customerNumber.toLowerCase().includes(searchTerm)) ||
+                    (company.email && company.email.toLowerCase().includes(searchTerm)) ||
+                    (company.address && company.address.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            renderCompanyList();
+        }
+
         function updateCompanyList() {
-            const container = document.getElementById('company-list');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const sortValue = document.getElementById('sort-select').value;
             const [field, direction] = sortValue.split('-');
             
-            let sortedCompanies = [...crmData.companies];
+            // Filter first
+            if (searchTerm === '') {
+                filteredCompanies = [...crmData.companies];
+            } else {
+                filteredCompanies = crmData.companies.filter(company => 
+                    company.name.toLowerCase().includes(searchTerm) ||
+                    (company.customerNumber && company.customerNumber.toLowerCase().includes(searchTerm)) ||
+                    (company.email && company.email.toLowerCase().includes(searchTerm)) ||
+                    (company.address && company.address.toLowerCase().includes(searchTerm))
+                );
+            }
             
             // Add computed fields
-            sortedCompanies = sortedCompanies.map(company => ({
+            filteredCompanies = filteredCompanies.map(company => ({
                 ...company,
                 contactCount: (company.contacts || []).length,
                 lastActivity: company.lastActivity || company.createdAt
             }));
             
             // Sort
-            sortedCompanies.sort((a, b) => {
+            filteredCompanies.sort((a, b) => {
                 let aVal, bVal;
                 
                 switch(field) {
                     case 'name':
                         aVal = a.name.toLowerCase();
                         bVal = b.name.toLowerCase();
+                        break;
+                    case 'customerNumber':
+                        aVal = a.customerNumber || '';
+                        bVal = b.customerNumber || '';
                         break;
                     case 'lastActivity':
                         aVal = new Date(a.lastActivity);
@@ -689,20 +935,40 @@
                 }
             });
             
-            if (sortedCompanies.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 48px; margin-bottom: 16px;">🏢</div>
-                        <p>Keine Unternehmen vorhanden</p>
-                        <button class="button" onclick="showCompanyModal()" style="margin-top: 16px;">
-                            Erstes Unternehmen hinzufügen
-                        </button>
-                    </div>
-                `;
+            renderCompanyList();
+        }
+
+        function renderCompanyList() {
+            const container = document.getElementById('company-list');
+            
+            if (filteredCompanies.length === 0) {
+                const searchTerm = document.getElementById('search-input').value;
+                
+                if (searchTerm) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                            <p>Keine Unternehmen gefunden für "${searchTerm}"</p>
+                            <button class="button" onclick="document.getElementById('search-input').value=''; filterCompanies();" style="margin-top: 16px;">
+                                Filter zurücksetzen
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🏢</div>
+                            <p>Keine Unternehmen vorhanden</p>
+                            <button class="button" onclick="showCompanyModal()" style="margin-top: 16px;">
+                                Erstes Unternehmen hinzufügen
+                            </button>
+                        </div>
+                    `;
+                }
                 return;
             }
             
-            container.innerHTML = sortedCompanies.map(company => {
+            container.innerHTML = filteredCompanies.map(company => {
                 const companyTags = (company.tags || [])
                     .map(tagId => crmData.tags.find(tag => tag.id === tagId))
                     .filter(Boolean);
@@ -713,6 +979,9 @@
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
                                 <div class="company-name">${company.name}</div>
+                                <div class="customer-number">
+                                    ${company.customerNumber || 'Keine Kundennummer'}
+                                </div>
                                 <div class="company-contacts">${company.contactCount} Kontakte</div>
                                 
                                 ${companyTags.length > 0 ? `
@@ -728,10 +997,13 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 4px;">
-                                <button class="icon-button" onclick="event.stopPropagation(); editCompanyInline(${company.id})">
+                                <button class="icon-button" onclick="event.stopPropagation(); editCompanyInline(${company.id})" title="Bearbeiten">
                                     ✏️
                                 </button>
-                                <button class="icon-button delete" onclick="event.stopPropagation(); deleteCompanyInline(${company.id})">
+                                <button class="icon-button" onclick="event.stopPropagation(); createInvoiceForCompanyInline(${company.id})" title="Rechnung erstellen">
+                                    💰
+                                </button>
+                                <button class="icon-button delete" onclick="event.stopPropagation(); deleteCompanyInline(${company.id})" title="Löschen">
                                     🗑️
                                 </button>
                             </div>
@@ -755,6 +1027,8 @@
             document.getElementById('company-details').classList.remove('hidden');
             
             document.getElementById('company-title').textContent = company.name;
+            document.getElementById('company-customer-number').textContent = 
+                `Kundennummer: ${company.customerNumber || 'Nicht zugewiesen'}`;
             
             // Show company info
             const activeFields = crmData.companyFields.filter(field => field.active).sort((a, b) => a.order - b.order);
@@ -823,6 +1097,7 @@
             }
             
             updateContactsList();
+            updateInvoiceHistory();
         }
 
         function updateContactsList() {
@@ -887,10 +1162,10 @@
                         </div>
                         
                         <div class="contact-actions">
-                            <button class="icon-button" onclick="editContactInline(${contact.id})">
+                            <button class="icon-button" onclick="editContactInline(${contact.id})" title="Bearbeiten">
                                 ✏️
                             </button>
-                            <button class="icon-button delete" onclick="deleteContact(${contact.id})">
+                            <button class="icon-button delete" onclick="deleteContact(${contact.id})" title="Löschen">
                                 🗑️
                             </button>
                         </div>
@@ -899,16 +1174,87 @@
             `).join('');
         }
 
-        // NEW: Function to create invoice for selected company
-        function createInvoiceForCompany() {
-            if (!selectedCompanyId) {
-                alert('Bitte wählen Sie zuerst ein Unternehmen aus.');
+        function updateInvoiceHistory() {
+            const companyInvoices = crmData.invoices.filter(invoice => invoice.companyId === selectedCompanyId);
+            const container = document.getElementById('invoice-list');
+            
+            if (companyInvoices.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 24px; color: #6b7280;">
+                        <p>Noch keine Rechnungen für dieses Unternehmen</p>
+                        <button class="button button-green" onclick="createInvoiceForCompany()" style="margin-top: 12px;">
+                            Erste Rechnung erstellen
+                        </button>
+                    </div>
+                `;
                 return;
             }
             
-            // Store the company ID for the invoice creation page
-            localStorage.setItem('preselectedCompanyId', selectedCompanyId);
-            window.location.href = 'create-invoice.html';
+            // Sort by date (newest first)
+            const sortedInvoices = companyInvoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = sortedInvoices.map(invoice => {
+                let statusClass = 'status-' + invoice.status;
+                let statusText = {
+                    'draft': 'Entwurf',
+                    'sent': 'Versendet',
+                    'paid': 'Bezahlt',
+                    'overdue': 'Überfällig',
+                    'cancelled': 'Storniert'
+                }[invoice.status] || invoice.status;
+                
+                // Check if invoice is overdue
+                if (invoice.status === 'sent' && new Date(invoice.dueDate) < new Date()) {
+                    statusClass = 'status-overdue';
+                    statusText = 'Überfällig';
+                }
+                
+                return `
+                    <div class="invoice-item">
+                        <div>
+                            <div class="invoice-number">${invoice.invoiceNumber}</div>
+                            <div style="font-size: 12px; color: #6b7280;">
+                                ${CRMData.formatTimestamp(invoice.date)} • Fällig: ${CRMData.formatTimestamp(invoice.dueDate)}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="invoice-amount">${CRMData.formatCurrency(parseFloat(invoice.totalGross))}</div>
+                            <div class="invoice-status ${statusClass}">${statusText}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add summary
+            const totalInvoices = companyInvoices.length;
+            const totalAmount = companyInvoices.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            const openInvoices = companyInvoices.filter(inv => ['sent', 'overdue'].includes(inv.status));
+            const openAmount = openInvoices.reduce((sum, inv) => sum + parseFloat(inv.totalGross), 0);
+            
+            container.innerHTML += `
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Gesamt: ${totalInvoices} Rechnungen</span>
+                        <span>${CRMData.formatCurrency(totalAmount)}</span>
+                    </div>
+                    ${openInvoices.length > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-top: 4px; color: #dc2626;">
+                            <span>Offen: ${openInvoices.length} Rechnungen</span>
+                            <span>${CRMData.formatCurrency(openAmount)}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function createInvoiceForCompany() {
+            if (selectedCompanyId) {
+                window.location.href = `create-invoice.html?company=${selectedCompanyId}`;
+            }
+        }
+
+        function createInvoiceForCompanyInline(companyId) {
+            window.location.href = `create-invoice.html?company=${companyId}`;
         }
 
         // Modal functions
@@ -916,12 +1262,22 @@
             editingCompany = null;
             validationErrors = {};
             document.getElementById('company-modal-title').textContent = 'Neues Unternehmen';
+            
+            // Show customer number preview
+            const nextNumber = CRMData.generateCustomerNumber();
+            // Decrement the counter since we just used it for preview
+            crmData.invoiceSettings.nextCustomerNumber--;
+            
+            document.getElementById('preview-customer-number').textContent = nextNumber;
+            document.getElementById('customer-number-preview').classList.remove('hidden');
+            
             generateCompanyForm();
             document.getElementById('company-modal').classList.remove('hidden');
         }
 
         function hideCompanyModal() {
             document.getElementById('company-modal').classList.add('hidden');
+            document.getElementById('customer-number-preview').classList.add('hidden');
             validationErrors = {};
         }
 
@@ -1081,10 +1437,11 @@
                     lastActivity: timestamp
                 };
             } else {
-                // Create new company
+                // Create new company with customer number
                 const newCompany = {
                     id: Date.now(),
                     ...formData,
+                    customerNumber: CRMData.generateCustomerNumber(),
                     contacts: [],
                     createdAt: timestamp,
                     lastActivity: timestamp
@@ -1154,6 +1511,7 @@
         function editCompanyInline(companyId) {
             editingCompany = crmData.companies.find(c => c.id === companyId);
             document.getElementById('company-modal-title').textContent = 'Unternehmen bearbeiten';
+            document.getElementById('customer-number-preview').classList.add('hidden');
             generateCompanyForm();
             document.getElementById('company-modal').classList.remove('hidden');
         }
@@ -1171,7 +1529,8 @@
         }
 
         function deleteCompanyInline(companyId) {
-            if (confirm('Möchten Sie dieses Unternehmen wirklich löschen?')) {
+            const company = crmData.companies.find(c => c.id === companyId);
+            if (confirm(`Möchten Sie das Unternehmen "${company.name}" wirklich löschen?\n\nDies löscht auch alle zugehörigen Kontakte und Erinnerungen.`)) {
                 crmData.companies = crmData.companies.filter(c => c.id !== companyId);
                 crmData.reminders = crmData.reminders.filter(r => r.companyId !== companyId);
                 
@@ -1212,19 +1571,9 @@
 
         // Initialize
         window.onload = function() {
-            // Check if we should preselect a company (from search)
-            const preselectedId = localStorage.getItem('selectedCompanyId');
-            if (preselectedId) {
-                selectedCompanyId = parseInt(preselectedId);
-                localStorage.removeItem('selectedCompanyId');
-            }
-            
+            ensureCustomerNumbers();
             updateCompanyList();
             updateReminderCount();
-            
-            if (selectedCompanyId) {
-                showCompanyDetails();
-            }
         };
 
         // Close modals when clicking outside
