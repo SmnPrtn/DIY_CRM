@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - PDF-Export Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+            padding: 24px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        /* PDF-specific styles */
+        .invoice-pdf {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
+        }
+        
+        .pdf-content {
+            padding: 20mm;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .company-info {
+            flex: 1;
+        }
+        
+        .company-logo {
+            max-width: 120px;
+            max-height: 60px;
+            margin-bottom: 16px;
+        }
+        
+        .company-name {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+        
+        .company-details {
+            font-size: 10pt;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+        
+        .invoice-number-section {
+            text-align: right;
+            min-width: 200px;
+        }
+        
+        .invoice-number {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+        
+        .invoice-date {
+            font-size: 10pt;
+            color: #6b7280;
+        }
+        
+        .customer-section {
+            margin-bottom: 40px;
+        }
+        
+        .customer-label {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+        
+        .customer-number {
+            font-size: 9pt;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .customer-details {
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .items-table th {
+            background-color: #f8fafc;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .items-table td {
+            padding: 10px 8px;
+            font-size: 10pt;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: top;
+        }
+        
+        .items-table .text-right {
+            text-align: right;
+        }
+        
+        .items-table .text-center {
+            text-align: center;
+        }
+        
+        .item-description {
+            font-size: 9pt;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+        
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 40px;
+        }
+        
+        .totals-table {
+            width: 250px;
+            border-collapse: collapse;
+        }
+        
+        .totals-table td {
+            padding: 6px 12px;
+            font-size: 11pt;
+        }
+        
+        .totals-table .total-label {
+            text-align: left;
+            color: #4b5563;
+        }
+        
+        .totals-table .total-amount {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .totals-table .final-total {
+            border-top: 2px solid #374151;
+            font-size: 13pt;
+            color: #1f2937;
+        }
+        
+        .payment-terms {
+            margin-bottom: 30px;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            font-size: 10pt;
+            line-height: 1.5;
+        }
+        
+        .invoice-footer {
+            position: absolute;
+            bottom: 20mm;
+            left: 20mm;
+            right: 20mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 8pt;
+            color: #6b7280;
+        }
+        
+        .pdf-content {
+            padding: 20mm;
+            padding-bottom: 40mm; /* Platz für Footer schaffen */
+            height: 100%;
+            box-sizing: border-box;
+            position: relative;
+            min-height: 297mm;
+        }
+        
+        .bank-details {
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .qr-code-section {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8pt;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            
+            .container {
+                max-width: none;
+                margin: 0;
+            }
+            
+            .card {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .invoice-pdf {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                min-height: 100vh;
+            }
+            
+            .invoice-footer {
+                position: fixed;
+                bottom: 0;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+        
+        .preview-section {
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .info-text {
+            color: #1e40af;
+            font-size: 14px;
+        }
+    </style>
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card no-print">
+            <h1 style="font-size: 24px; font-weight: bold; color: #1f2937; margin-bottom: 16px;">
+                📄 PDF-Export System
+            </h1>
+            
+            <div class="info-box">
+                <div class="info-title">💡 PDF-Export für Rechnungen</div>
+                <div class="info-text">
+                    Dieses System generiert professionelle PDF-Rechnungen basierend auf Ihren Konfigurationen. 
+                    Die Rechnungen enthalten alle Details aus Ihrer Eingabe einschließlich QR-Codes und Firmendaten.
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <h3 style="margin-bottom: 16px;">Test-Rechnung konfigurieren</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Rechnungsnummer</label>
+                        <input type="text" id="test-invoice-number" class="form-input" value="R-0005">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kundennummer</label>
+                        <input type="text" id="test-customer-number" class="form-input" value="K-10030">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Firmenname</label>
+                        <input type="text" id="test-company-name" class="form-input" value="Simon Brenner Kernbohrtechnik">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kunde</label>
+                        <input type="text" id="test-customer-name" class="form-input" value="HBS Unternehmen">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px;">
+                    <button class="button" onclick="generatePDF()">
+                        📄 PDF erstellen
+                    </button>
+                    <button class="button button-green" onclick="previewInvoice()">
+                        👁️ Vorschau anzeigen
+                    </button>
+                    <button class="button" onclick="printInvoice()">
+                        🖨️ Drucken
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PDF Preview -->
+        <div class="invoice-pdf" id="invoice-preview">
+            <div class="pdf-content">
+                <!-- Invoice Header -->
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <div class="company-name" id="pdf-company-name">Simon Brenner Kernbohrtechnik</div>
+                        <div class="company-details" id="pdf-company-details">
+                            Ruprechtsberg 20<br>
+                            4761 Enzenkirchen<br>
+                            Tel. +43 676 651 60 92<br>
+                            office@kernbohrtechnik.at<br>
+                            www.kernbohrtechnik.at
+                        </div>
+                    </div>
+                    <div class="invoice-number-section">
+                        <div class="invoice-number" id="pdf-invoice-number">R-0005</div>
+                        <div class="invoice-date" id="pdf-invoice-date">
+                            Rechnungs Nr.: 25136<br>
+                            Kunden Nr.: 10030<br>
+                            Datum: 03.06.2025
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Section -->
+                <div class="customer-section">
+                    <div class="customer-label">Rechnungsempfänger:</div>
+                    <div class="customer-number" id="pdf-customer-number">Kundennummer: K-10030</div>
+                    <div class="customer-details" id="pdf-customer-details">
+                        <strong>HBS Unternehmen</strong><br>
+                        HBS Straße 1<br>
+                        <br>
+                        Ansprechpartner: HBS Geschäftsführer
+                    </div>
+                </div>
+                
+                <!-- Greeting -->
+                <div style="margin-bottom: 20px; font-size: 11pt;">
+                    Sehr geehrter Herr Bertl,<br><br>
+                    wir bedanken uns für den Auftrag und erlauben uns, die nachfolgenden Leistungen in Rechnung zu stellen.
+                </div>
+                
+                <!-- Items Table -->
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th width="8%">Pos.</th>
+                            <th width="10%">Art.Nr.</th>
+                            <th width="37%">Beschreibung</th>
+                            <th width="10%" class="text-center">Menge</th>
+                            <th width="8%" class="text-center">Einheit</th>
+                            <th width="9%" class="text-right">USt.</th>
+                            <th width="10%" class="text-right">Preis</th>
+                            <th width="12%" class="text-right">Summe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pdf-items-body">
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>DA966737</td>
+                            <td>
+                                <strong>Lieselsberger Quarzit 60/60/2 grau</strong>
+                                <div class="item-description">Premium Naturstein-Terrassenplatten</div>
+                            </td>
+                            <td class="text-center">25,2</td>
+                            <td class="text-center">m²</td>
+                            <td class="text-right">20%</td>
+                            <td class="text-right">24,30</td>
+                            <td class="text-right">612,36</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td></td>
+                            <td>
+                                <strong>Frachtkosten 7%</strong>
+                            </td>
+                            <td class="text-center">7</td>
+                            <td class="text-center">%</td>
+                            <td class="text-right">20%</td>
+                            <td class="text-right">6,41</td>
+                            <td class="text-right">44,90</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3</td>
+                            <td></td>
+                            <td>
+                                <strong>Kanalabladegebühr je Hub</strong>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-center">Stk.</td>
+                            <td class="text-right">20%</td>
+                            <td class="text-right">7,49</td>
+                            <td class="text-right">7,49</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">4</td>
+                            <td></td>
+                            <td>
+                                <strong>Euro Palette 2022</strong>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-center">Stk.</td>
+                            <td class="text-right">20%</td>
+                            <td class="text-right">21,60</td>
+                            <td class="text-right">21,60</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Totals -->
+                <div class="totals-section">
+                    <table class="totals-table">
+                        <tr>
+                            <td class="total-label">Nettosumme:</td>
+                            <td class="total-amount">686,35</td>
+                        </tr>
+                        <tr>
+                            <td class="total-label">20% USt.:</td>
+                            <td class="total-amount">137,27</td>
+                        </tr>
+                        <tr class="final-total">
+                            <td class="total-label"><strong>Gesamtsumme:</strong></td>
+                            <td class="total-amount"><strong>€ 823,62</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- Payment Terms -->
+                <div class="payment-terms">
+                    <strong>Zahlungsbedingungen:</strong><br>
+                    Zahlung binnen 30 Tagen ohne Abzug.<br>
+                    Leistungsdatum: 20.05.2025
+                </div>
+                
+                <!-- Footer -->
+                <div class="invoice-footer">
+                    <div class="bank-details" id="pdf-footer-text">
+                        Simon Brenner | Sparkasse OÖ | IBAN: AT 33 2032 0321 0051 6306 | BIC: ASPKAT2LXXX | ATU 75111834
+                    </div>
+                    <div class="qr-code-section">
+                        <div>
+                            QR-Code<br>
+                            <small>Zahlung</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample CRM Data for PDF generation
+        const sampleInvoiceData = {
+            invoiceNumber: 'R-0005',
+            customerNumber: 'K-10030',
+            date: '03.06.2025',
+            dueDate: '03.07.2025',
+            company: {
+                name: 'Simon Brenner Kernbohrtechnik',
+                address: 'Ruprechtsberg 20\n4761 Enzenkirchen',
+                phone: '+43 676 651 60 92',
+                email: 'office@kernbohrtechnik.at',
+                website: 'www.kernbohrtechnik.at',
+                taxNumber: 'ATU 75111834'
+            },
+            customer: {
+                name: 'HBS Unternehmen',
+                address: 'HBS Straße 1',
+                contact: 'HBS Geschäftsführer'
+            },
+            items: [
+                {
+                    pos: 1,
+                    artNr: 'DA966737',
+                    description: 'Lieselsberger Quarzit 60/60/2 grau',
+                    detail: 'Premium Naturstein-Terrassenplatten',
+                    quantity: 25.2,
+                    unit: 'm²',
+                    vat: '20%',
+                    price: 24.30,
+                    total: 612.36
+                },
+                {
+                    pos: 2,
+                    artNr: '',
+                    description: 'Frachtkosten 7%',
+                    detail: '',
+                    quantity: 7,
+                    unit: '%',
+                    vat: '20%',
+                    price: 6.41,
+                    total: 44.90
+                },
+                {
+                    pos: 3,
+                    artNr: '',
+                    description: 'Kanalabladegebühr je Hub',
+                    detail: '',
+                    quantity: 1,
+                    unit: 'Stk.',
+                    vat: '20%',
+                    price: 7.49,
+                    total: 7.49
+                },
+                {
+                    pos: 4,
+                    artNr: '',
+                    description: 'Euro Palette 2022',
+                    detail: '',
+                    quantity: 1,
+                    unit: 'Stk.',
+                    vat: '20%',
+                    price: 21.60,
+                    total: 21.60
+                }
+            ],
+            totals: {
+                net: 686.35,
+                vat: 137.27,
+                gross: 823.62
+            },
+            paymentTerms: 'Zahlung binnen 30 Tagen ohne Abzug.\nLeistungsdatum: 20.05.2025',
+            bankDetails: 'Simon Brenner | Sparkasse OÖ | IBAN: AT 33 2032 0321 0051 6306 | BIC: ASPKAT2LXXX | ATU 75111834'
+        };
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function formatNumber(amount) {
+            return new Intl.NumberFormat('de-DE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function updatePreviewData() {
+            const invoiceNumber = document.getElementById('test-invoice-number').value;
+            const customerNumber = document.getElementById('test-customer-number').value;
+            const companyName = document.getElementById('test-company-name').value;
+            const customerName = document.getElementById('test-customer-name').value;
+
+            // Update preview
+            document.getElementById('pdf-invoice-number').textContent = invoiceNumber;
+            document.getElementById('pdf-company-name').textContent = companyName;
+            
+            document.getElementById('pdf-invoice-date').innerHTML = `
+                Rechnungs Nr.: 25136<br>
+                Kunden Nr.: ${customerNumber.replace('K-', '')}<br>
+                Datum: ${new Date().toLocaleDateString('de-DE')}
+            `;
+            
+            document.getElementById('pdf-customer-number').textContent = `Kundennummer: ${customerNumber}`;
+            
+            document.getElementById('pdf-customer-details').innerHTML = `
+                <strong>${customerName}</strong><br>
+                ${customerName} Straße 1<br>
+                <br>
+                Ansprechpartner: ${customerName} Geschäftsführer
+            `;
+        }
+
+        function previewInvoice() {
+            updatePreviewData();
+            
+            // Scroll to preview
+            document.getElementById('invoice-preview').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function printInvoice() {
+            updatePreviewData();
+            
+            // Hide all non-print elements
+            const nonPrintElements = document.querySelectorAll('.no-print');
+            nonPrintElements.forEach(el => el.style.display = 'none');
+            
+            // Print
+            window.print();
+            
+            // Restore elements
+            nonPrintElements.forEach(el => el.style.display = '');
+        }
+
+        function generatePDF() {
+            updatePreviewData();
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // Set font
+                doc.setFont('helvetica');
+                
+                // Header - Company Info
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text(sampleInvoiceData.company.name, 20, 30);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                const companyLines = sampleInvoiceData.company.address.split('\n');
+                companyLines.push(`Tel. ${sampleInvoiceData.company.phone}`);
+                companyLines.push(sampleInvoiceData.company.email);
+                companyLines.push(sampleInvoiceData.company.website);
+                
+                let yPos = 40;
+                companyLines.forEach(line => {
+                    doc.text(line, 20, yPos);
+                    yPos += 5;
+                });
+                
+                // Invoice Number
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(37, 99, 235); // Blue color
+                doc.text(document.getElementById('test-invoice-number').value, 150, 30);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                doc.text('Rechnungs Nr.: 25136', 150, 40);
+                doc.text(`Kunden Nr.: ${document.getElementById('test-customer-number').value.replace('K-', '')}`, 150, 45);
+                doc.text(`Datum: ${new Date().toLocaleDateString('de-DE')}`, 150, 50);
+                
+                // Customer Info
+                yPos = 80;
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Rechnungsempfänger:', 20, yPos);
+                
+                yPos += 10;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Kundennummer: ${document.getElementById('test-customer-number').value}`, 20, yPos);
+                
+                yPos += 8;
+                doc.setFont('helvetica', 'bold');
+                doc.text(document.getElementById('test-customer-name').value, 20, yPos);
+                
+                yPos += 5;
+                doc.setFont('helvetica', 'normal');
+                doc.text(`${document.getElementById('test-customer-name').value} Straße 1`, 20, yPos);
+                
+                yPos += 10;
+                doc.text(`Ansprechpartner: ${document.getElementById('test-customer-name').value} Geschäftsführer`, 20, yPos);
+                
+                // Greeting
+                yPos += 15;
+                doc.text('Sehr geehrter Herr Bertl,', 20, yPos);
+                yPos += 8;
+                doc.text('wir bedanken uns für den Auftrag und erlauben uns, die nachfolgenden', 20, yPos);
+                yPos += 5;
+                doc.text('Leistungen in Rechnung zu stellen.', 20, yPos);
+                
+                // Table Header
+                yPos += 15;
+                const tableStartY = yPos;
+                
+                // Table headers
+                doc.setFillColor(248, 250, 252);
+                doc.rect(20, yPos - 5, 170, 10, 'F');
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.text('Pos.', 22, yPos);
+                doc.text('Art.Nr.', 32, yPos);
+                doc.text('Beschreibung', 50, yPos);
+                doc.text('Menge', 110, yPos);
+                doc.text('Einheit', 125, yPos);
+                doc.text('USt.', 140, yPos);
+                doc.text('Preis', 155, yPos);
+                doc.text('Summe', 175, yPos);
+                
+                yPos += 10;
+                
+                // Table items
+                doc.setFont('helvetica', 'normal');
+                sampleInvoiceData.items.forEach(item => {
+                    doc.text(item.pos.toString(), 22, yPos);
+                    doc.text(item.artNr, 32, yPos);
+                    doc.text(item.description, 50, yPos);
+                    if (item.detail) {
+                        doc.setFontSize(8);
+                        doc.setTextColor(107, 114, 128);
+                        doc.text(item.detail, 50, yPos + 3);
+                        doc.setFontSize(9);
+                        doc.setTextColor(0, 0, 0);
+                    }
+                    doc.text(formatNumber(item.quantity), 115, yPos, { align: 'right' });
+                    doc.text(item.unit, 127, yPos, { align: 'center' });
+                    doc.text(item.vat, 145, yPos, { align: 'right' });
+                    doc.text(formatNumber(item.price), 165, yPos, { align: 'right' });
+                    doc.text(formatNumber(item.total), 185, yPos, { align: 'right' });
+                    
+                    yPos += item.detail ? 12 : 8;
+                });
+                
+                // Totals
+                yPos += 10;
+                const totalsX = 130;
+                
+                doc.text('Nettosumme:', totalsX, yPos);
+                doc.text(formatNumber(sampleInvoiceData.totals.net), 185, yPos, { align: 'right' });
+                
+                yPos += 6;
+                doc.text('20% USt.:', totalsX, yPos);
+                doc.text(formatNumber(sampleInvoiceData.totals.vat), 185, yPos, { align: 'right' });
+                
+                yPos += 8;
+                doc.setFont('helvetica', 'bold');
+                doc.text('Gesamtsumme:', totalsX, yPos);
+                doc.text(`€ ${formatNumber(sampleInvoiceData.totals.gross)}`, 185, yPos, { align: 'right' });
+                
+                // Payment Terms
+                yPos += 15;
+                doc.setFont('helvetica', 'normal');
+                doc.setFillColor(249, 250, 251);
+                doc.rect(20, yPos - 5, 170, 15, 'F');
+                
+                doc.setFont('helvetica', 'bold');
+                doc.text('Zahlungsbedingungen:', 22, yPos);
+                doc.setFont('helvetica', 'normal');
+                yPos += 5;
+                doc.text('Zahlung binnen 30 Tagen ohne Abzug.', 22, yPos);
+                yPos += 5;
+                doc.text('Leistungsdatum: 20.05.2025', 22, yPos);
+                
+                // Footer
+                doc.setFontSize(8);
+                doc.text(sampleInvoiceData.bankDetails, 20, 280);
+                
+                // QR Code placeholder
+                doc.rect(170, 270, 15, 15);
+                doc.text('QR', 175, 278, { align: 'center' });
+                
+                // Save PDF
+                const fileName = `Rechnung_${document.getElementById('test-invoice-number').value}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                alert('✅ PDF erfolgreich erstellt und heruntergeladen!');
+                
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                alert('❌ Fehler beim Erstellen der PDF. Bitte versuchen Sie es erneut.');
+            }
+        }
+
+        // Event listeners for real-time preview updates
+        document.getElementById('test-invoice-number').addEventListener('input', updatePreviewData);
+        document.getElementById('test-customer-number').addEventListener('input', updatePreviewData);
+        document.getElementById('test-company-name').addEventListener('input', updatePreviewData);
+        document.getElementById('test-customer-name').addEventListener('input', updatePreviewData);
+
+        // Initialize
+        window.onload = function() {
+            updatePreviewData();
+        };
+    </script>
+</body>
+</html>
