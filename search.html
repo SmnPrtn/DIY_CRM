@@ -118,6 +118,33 @@
             color: #6b7280;
             font-size: 20px;
         }
+
+        .search-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-button.active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .filter-button:hover {
+            border-color: #2563eb;
+        }
         
         .search-result {
             border: 1px solid #e5e7eb;
@@ -171,6 +198,16 @@
         .badge-company {
             background-color: #dbeafe;
             color: #1e40af;
+        }
+
+        .badge-product {
+            background-color: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .badge-invoice {
+            background-color: #fef3c7;
+            color: #d97706;
         }
         
         .badge-all-contacts {
@@ -229,6 +266,82 @@
             background-color: #dcfce7;
             color: #166534;
         }
+
+        .result-product {
+            padding: 16px;
+            background-color: #ffffff;
+            border-top: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .result-product:hover {
+            background-color: #f9fafb;
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 24px;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .product-price {
+            font-size: 14px;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .product-category {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .result-invoice {
+            padding: 16px;
+            background-color: #ffffff;
+            border-top: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .result-invoice:hover {
+            background-color: #f9fafb;
+        }
+
+        .invoice-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 24px;
+        }
+
+        .invoice-number {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .invoice-amount {
+            font-size: 14px;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .invoice-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .status-draft { background-color: #f3f4f6; color: #6b7280; }
+        .status-sent { background-color: #dbeafe; color: #1e40af; }
+        .status-paid { background-color: #dcfce7; color: #166534; }
+        .status-overdue { background-color: #fecaca; color: #dc2626; }
         
         .tag-badge {
             display: inline-block;
@@ -281,6 +394,15 @@
             padding: 2px 4px;
             border-radius: 3px;
         }
+
+        .results-summary {
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #6b7280;
+        }
         
         @media (max-width: 768px) {
             .grid-cols-12 {
@@ -296,6 +418,10 @@
                 flex-direction: column;
                 gap: 4px;
             }
+
+            .search-filters {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -307,7 +433,7 @@
                 Intelligente Suche
             </h1>
             <p style="color: #6b7280;">
-                Durchsuche Unternehmen und Kontakte nach Namen, Positionen und mehr
+                Durchsuche Unternehmen, Kontakte, Produkte und Rechnungen
             </p>
         </div>
 
@@ -321,6 +447,12 @@
                         </a>
                         <a href="companies.html" class="nav-button">
                             🏢 Unternehmen
+                        </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
                         </a>
                         <a href="search.html" class="nav-button active">
                             🔍 Suche
@@ -345,19 +477,36 @@
                             type="text" 
                             id="search-input"
                             class="search-input" 
-                            placeholder="Unternehmen oder Kontakte suchen (min. 3 Zeichen)..."
+                            placeholder="Durchsuche alles: Unternehmen, Kontakte, Produkte, Rechnungen... (min. 3 Zeichen)"
                             oninput="handleSearch()"
                         />
+                    </div>
+
+                    <!-- Search Filters -->
+                    <div class="search-filters">
+                        <button class="filter-button active" onclick="setSearchFilter('all')" id="filter-all">
+                            🔍 Alles durchsuchen
+                        </button>
+                        <button class="filter-button" onclick="setSearchFilter('companies')" id="filter-companies">
+                            🏢 Nur Unternehmen
+                        </button>
+                        <button class="filter-button" onclick="setSearchFilter('products')" id="filter-products">
+                            📦 Nur Produkte
+                        </button>
+                        <button class="filter-button" onclick="setSearchFilter('invoices')" id="filter-invoices">
+                            💰 Nur Rechnungen
+                        </button>
                     </div>
                     
                     <!-- Search Tips -->
                     <div id="search-tips" class="search-tips">
                         <h4>💡 Such-Tipps:</h4>
                         <ul>
-                            <li><strong>Unternehmen finden:</strong> Geben Sie den Firmennamen ein</li>
-                            <li><strong>Kontakte finden:</strong> Namen oder Positionen durchsuchen</li>
-                            <li><strong>Intelligente Ergebnisse:</strong> Bei einem Treffer werden alle Kontakte angezeigt</li>
-                            <li><strong>Direkte Navigation:</strong> Klicken Sie auf ein Ergebnis für Details</li>
+                            <li><strong>Unternehmen:</strong> Namen, Adressen, E-Mails durchsuchen</li>
+                            <li><strong>Kontakte:</strong> Namen oder Positionen finden</li>
+                            <li><strong>Produkte:</strong> Produktnamen oder Kategorien suchen</li>
+                            <li><strong>Rechnungen:</strong> Rechnungsnummern oder Kunden finden</li>
+                            <li><strong>Smart-Suche:</strong> Ein Begriff findet alle zugehörigen Daten</li>
                         </ul>
                     </div>
                 </div>
@@ -375,7 +524,7 @@
                             Bereit zum Suchen
                         </h3>
                         <p style="color: #9ca3af;">
-                            Suchen Sie nach Unternehmen oder Kontaktpersonen
+                            Suchen Sie nach Unternehmen, Kontakten, Produkten oder Rechnungen
                         </p>
                     </div>
                 </div>
@@ -399,14 +548,15 @@
                             Keine Ergebnisse gefunden
                         </h3>
                         <p style="color: #9ca3af; margin-bottom: 16px;">
-                            Versuchen Sie es mit anderen Suchbegriffen
+                            Versuchen Sie es mit anderen Suchbegriffen oder Filtern
                         </p>
                         <div style="font-size: 14px; color: #6b7280;">
                             <p>Vorschläge:</p>
                             <ul style="margin: 8px 0 0 20px;">
                                 <li>Überprüfen Sie die Schreibweise</li>
                                 <li>Verwenden Sie allgemeinere Begriffe</li>
-                                <li>Probieren Sie nur den Vornamen oder Nachnamen</li>
+                                <li>Versuchen Sie verschiedene Filter</li>
+                                <li>Probieren Sie nur den Vor- oder Nachnamen</li>
                             </ul>
                         </div>
                     </div>
@@ -416,7 +566,7 @@
     </div>
 
     <script>
-        // CRM Data Management (same as previous files)
+        // CRM Data Management (VOLLSTÄNDIG mit allen Modulen)
         class CRMData {
             static STORAGE_KEY = 'crm_data';
             
@@ -424,6 +574,22 @@
                 return {
                     companies: [],
                     reminders: [],
+                    products: [], // NEU: Produkte hinzugefügt
+                    invoices: [], // NEU: Rechnungen hinzugefügt
+                    invoiceSettings: { // NEU: Rechnungseinstellungen hinzugefügt
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPrefix: 'R-',
+                        defaultPaymentTerms: 30,
+                        companyInfo: {
+                            name: 'Ihre Firma GmbH',
+                            address: 'Musterstraße 123\n1234 Wien',
+                            phone: '+43 1 234567',
+                            email: 'office@ihrefirma.at',
+                            website: 'www.ihrefirma.at',
+                            taxNumber: 'ATU12345678',
+                            bankDetails: 'IBAN: AT123456789012345678\nBIC: BKAUATWW'
+                        }
+                    },
                     tags: [
                         { id: 1, name: 'Kunde', color: 'tag-green' },
                         { id: 2, name: 'Interessent', color: 'tag-blue' },
@@ -457,6 +623,10 @@
                         return {
                             ...defaultData,
                             ...parsed,
+                            // WICHTIG: Stelle sicher, dass alle neuen Felder existieren
+                            products: parsed.products || [],
+                            invoices: parsed.invoices || [],
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) },
                             tags: parsed.tags || defaultData.tags,
                             companyFields: parsed.companyFields || defaultData.companyFields,
                             contactFields: parsed.contactFields || defaultData.contactFields
@@ -467,27 +637,39 @@
                 }
                 return this.getDefaultData();
             }
+
+            static formatCurrency(amount) {
+                return new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2
+                }).format(amount);
+            }
+
+            static formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('de-DE');
+            }
         }
 
-        let crmData = null;
-
-// Neue async Initialisierung
-async function initializeCRM() {
-    // Prüfe auf Migration von localStorage
-    await CRMData.migrateFromLocalStorage();
-    
-    // Lade Daten
-    crmData = await CRMData.load();
-    
-    // Starte UI Updates
-    updateDashboard(); // oder andere Update-Funktionen
-}
-
-// Starte CRM wenn Seite geladen ist
-window.onload = initializeCRM;
+        let crmData = CRMData.load();
         let searchTimeout;
+        let currentSearchFilter = 'all';
 
         // Search functionality
+        function setSearchFilter(filter) {
+            currentSearchFilter = filter;
+            
+            // Update filter buttons
+            document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`filter-${filter}`).classList.add('active');
+            
+            // Re-run search if there's a current search term
+            const searchTerm = document.getElementById('search-input').value.trim();
+            if (searchTerm.length >= 3) {
+                performSearch(searchTerm);
+            }
+        }
+
         function handleSearch() {
             const searchTerm = document.getElementById('search-input').value.trim();
             
@@ -521,7 +703,7 @@ window.onload = initializeCRM;
             
             const results = getSearchResults(searchTerm);
             
-            if (results.length === 0) {
+            if (results.totalResults === 0) {
                 document.getElementById('no-results-state').style.display = 'block';
                 return;
             }
@@ -531,49 +713,104 @@ window.onload = initializeCRM;
 
         function getSearchResults(searchTerm) {
             const term = searchTerm.toLowerCase();
-            const results = [];
-            
-            crmData.companies.forEach(company => {
-                const companyMatches = company.name.toLowerCase().includes(term);
-                const matchingContacts = (company.contacts || []).filter(contact => 
-                    contact.name.toLowerCase().includes(term) || 
-                    (contact.position && contact.position.toLowerCase().includes(term))
-                );
-                
-                if (companyMatches || matchingContacts.length > 0) {
-                    results.push({
-                        company,
-                        companyMatches,
-                        matchingContacts,
-                        showAllContacts: results.length === 0 && companyMatches // Will be updated later
-                    });
-                }
-            });
-            
-            // If only one company is found, show all its contacts
-            if (results.length === 1) {
-                results[0].showAllContacts = true;
+            const results = {
+                companies: [],
+                products: [],
+                invoices: [],
+                totalResults: 0
+            };
+
+            // Search companies and contacts (existing logic)
+            if (currentSearchFilter === 'all' || currentSearchFilter === 'companies') {
+                crmData.companies.forEach(company => {
+                    const companyMatches = company.name.toLowerCase().includes(term) ||
+                                         (company.email && company.email.toLowerCase().includes(term)) ||
+                                         (company.address && company.address.toLowerCase().includes(term));
+                    
+                    const matchingContacts = (company.contacts || []).filter(contact => 
+                        contact.name.toLowerCase().includes(term) || 
+                        (contact.position && contact.position.toLowerCase().includes(term)) ||
+                        (contact.email && contact.email.toLowerCase().includes(term))
+                    );
+                    
+                    if (companyMatches || matchingContacts.length > 0) {
+                        results.companies.push({
+                            company,
+                            companyMatches,
+                            matchingContacts,
+                            showAllContacts: companyMatches || matchingContacts.length === 0
+                        });
+                    }
+                });
             }
-            
+
+            // Search products
+            if (currentSearchFilter === 'all' || currentSearchFilter === 'products') {
+                results.products = crmData.products.filter(product => 
+                    product.name.toLowerCase().includes(term) ||
+                    (product.description && product.description.toLowerCase().includes(term)) ||
+                    (product.category && product.category.toLowerCase().includes(term))
+                );
+            }
+
+            // Search invoices
+            if (currentSearchFilter === 'all' || currentSearchFilter === 'invoices') {
+                results.invoices = crmData.invoices.filter(invoice => {
+                    const company = crmData.companies.find(c => c.id === invoice.companyId);
+                    return invoice.invoiceNumber.toLowerCase().includes(term) ||
+                           (company && company.name.toLowerCase().includes(term)) ||
+                           (invoice.notes && invoice.notes.toLowerCase().includes(term));
+                }).map(invoice => ({
+                    ...invoice,
+                    company: crmData.companies.find(c => c.id === invoice.companyId)
+                }));
+            }
+
+            results.totalResults = results.companies.length + results.products.length + results.invoices.length;
             return results;
         }
 
         function displaySearchResults(results, searchTerm) {
             const container = document.getElementById('search-results');
             
-            container.innerHTML = `
-                <div class="card" style="padding: 16px; margin-bottom: 24px;">
-                    <h3 style="font-size: 16px; font-weight: 600; color: #1f2937;">
-                        Suchergebnisse (${results.length})
-                    </h3>
+            let html = `
+                <div class="results-summary">
+                    <strong>Suchergebnisse für "${searchTerm}":</strong> 
+                    ${results.companies.length} Unternehmen, 
+                    ${results.products.length} Produkte, 
+                    ${results.invoices.length} Rechnungen
+                    (${results.totalResults} Ergebnisse gesamt)
                 </div>
-                ${results.map(result => createResultHTML(result, searchTerm)).join('')}
             `;
+
+            // Company results
+            if (results.companies.length > 0) {
+                html += results.companies.map(result => createCompanyResultHTML(result, searchTerm)).join('');
+            }
+
+            // Product results
+            if (results.products.length > 0) {
+                html += `<div style="margin: 24px 0; padding: 12px; background-color: #f3e8ff; border-radius: 8px;">
+                    <h3 style="color: #7c3aed; font-size: 16px; margin: 0;">📦 Produkte (${results.products.length})</h3>
+                </div>`;
+                
+                html += results.products.map(product => createProductResultHTML(product, searchTerm)).join('');
+            }
+
+            // Invoice results
+            if (results.invoices.length > 0) {
+                html += `<div style="margin: 24px 0; padding: 12px; background-color: #fef3c7; border-radius: 8px;">
+                    <h3 style="color: #d97706; font-size: 16px; margin: 0;">💰 Rechnungen (${results.invoices.length})</h3>
+                </div>`;
+                
+                html += results.invoices.map(invoice => createInvoiceResultHTML(invoice, searchTerm)).join('');
+            }
             
+            container.innerHTML = html;
             container.style.display = 'block';
         }
 
-        function createResultHTML(result, searchTerm) {
+        function createCompanyResultHTML(result, searchTerm) {
             const { company, companyMatches, matchingContacts, showAllContacts } = result;
             const contactsToShow = showAllContacts ? (company.contacts || []) : matchingContacts;
             
@@ -644,7 +881,7 @@ window.onload = initializeCRM;
                                                     ${contact.email ? `
                                                         <span class="contact-info-item">
                                                             <span>✉️</span>
-                                                            <span>${contact.email}</span>
+                                                            <span>${highlightText(contact.email, searchTerm)}</span>
                                                         </span>
                                                     ` : ''}
                                                     ${contact.mobile ? `
@@ -667,6 +904,110 @@ window.onload = initializeCRM;
                             }).join('')}
                         </div>
                     ` : ''}
+                </div>
+            `;
+        }
+
+        function createProductResultHTML(product, searchTerm) {
+            return `
+                <div class="search-result">
+                    <div class="result-product" onclick="navigateToProducts()">
+                        <div class="product-header">
+                            <span class="contact-icon">📦</span>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <div class="product-name">
+                                            ${highlightText(product.name, searchTerm)}
+                                        </div>
+                                        ${product.description ? `
+                                            <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+                                                ${highlightText(product.description.substring(0, 100), searchTerm)}${product.description.length > 100 ? '...' : ''}
+                                            </div>
+                                        ` : ''}
+                                        ${product.category ? `
+                                            <div class="product-category" style="margin-top: 4px;">
+                                                Kategorie: ${highlightText(product.category, searchTerm)}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="product-price">
+                                            ${CRMData.formatCurrency(parseFloat(product.price))}
+                                        </div>
+                                        <div style="font-size: 12px; color: #6b7280;">
+                                            pro ${product.unit}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-badges" style="margin-top: 8px;">
+                                    <span class="result-badge badge-product">
+                                        📦 Produkt gefunden
+                                    </span>
+                                    <span style="font-size: 12px; color: #6b7280;">
+                                        ${product.active ? '✅ Aktiv' : '❌ Inaktiv'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createInvoiceResultHTML(invoice, searchTerm) {
+            const statusLabels = {
+                'draft': 'Entwurf',
+                'sent': 'Versendet',
+                'paid': 'Bezahlt',
+                'overdue': 'Überfällig',
+                'cancelled': 'Storniert'
+            };
+
+            const dueDate = new Date(invoice.dueDate);
+            const isOverdue = invoice.status === 'sent' && dueDate < new Date();
+            const displayStatus = isOverdue ? 'overdue' : invoice.status;
+
+            return `
+                <div class="search-result">
+                    <div class="result-invoice" onclick="navigateToInvoices()">
+                        <div class="invoice-header">
+                            <span class="contact-icon">💰</span>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <div class="invoice-number">
+                                            ${highlightText(invoice.invoiceNumber, searchTerm)}
+                                        </div>
+                                        <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+                                            Kunde: ${invoice.company ? highlightText(invoice.company.name, searchTerm) : 'Unbekannt'}
+                                        </div>
+                                        <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                                            ${CRMData.formatDate(invoice.date)} • Fällig: ${CRMData.formatDate(invoice.dueDate)}
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="invoice-amount">
+                                            ${CRMData.formatCurrency(parseFloat(invoice.totalGross || 0))}
+                                        </div>
+                                        <div style="font-size: 12px; color: #6b7280;">
+                                            ${invoice.items ? invoice.items.length : 0} Position${(invoice.items?.length || 0) !== 1 ? 'en' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="result-badges" style="margin-top: 8px;">
+                                    <span class="result-badge badge-invoice">
+                                        💰 Rechnung gefunden
+                                    </span>
+                                    <span class="invoice-status status-${displayStatus}">
+                                        ${statusLabels[displayStatus] || displayStatus}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -695,6 +1036,14 @@ window.onload = initializeCRM;
             window.location.href = 'companies.html';
         }
 
+        function navigateToProducts() {
+            window.location.href = 'products.html';
+        }
+
+        function navigateToInvoices() {
+            window.location.href = 'invoices.html';
+        }
+
         function updateReminderCount() {
             const activeReminders = crmData.reminders.filter(r => !r.completed).length;
             document.getElementById('reminder-count').textContent = activeReminders;
@@ -704,12 +1053,14 @@ window.onload = initializeCRM;
         window.onload = function() {
             updateReminderCount();
             
-            // Check if there are companies to search
-            if (crmData.companies.length === 0) {
+            // Check if there are any data to search
+            const hasData = crmData.companies.length > 0 || crmData.products.length > 0 || crmData.invoices.length > 0;
+            
+            if (!hasData) {
                 document.getElementById('search-tips').innerHTML = `
                     <h4 style="color: #dc2626;">⚠️ Keine Daten zum Durchsuchen</h4>
                     <p style="color: #dc2626; margin-top: 8px;">
-                        Es sind noch keine Unternehmen vorhanden. 
+                        Es sind noch keine Daten vorhanden. 
                         <a href="companies.html" style="color: #2563eb; text-decoration: underline;">
                             Fügen Sie zuerst Unternehmen hinzu
                         </a>, um die Suchfunktion zu nutzen.
@@ -725,12 +1076,12 @@ window.onload = initializeCRM;
         document.getElementById('search-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                // If there's exactly one result, navigate to it
+                // If there's exactly one company result, navigate to it
                 const searchTerm = this.value.trim();
                 if (searchTerm.length >= 3) {
                     const results = getSearchResults(searchTerm);
-                    if (results.length === 1) {
-                        navigateToCompany(results[0].company.id);
+                    if (results.companies.length === 1 && results.products.length === 0 && results.invoices.length === 0) {
+                        navigateToCompany(results.companies[0].company.id);
                     }
                 }
             }
