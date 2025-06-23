@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Rechnungsadministration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .col-span-3 {
+            grid-column: span 3;
+        }
+        
+        .col-span-9 {
+            grid-column: span 9;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .nav-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-button.active {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .admin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        .admin-icon {
+            font-size: 32px;
+        }
+        
+        .admin-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+        
+        .admin-subtitle {
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 24px;
+        }
+        
+        .admin-tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .admin-tab:hover {
+            color: #374151;
+        }
+        
+        .button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .button-green {
+            background-color: #059669;
+        }
+        
+        .button-green:hover {
+            background-color: #047857;
+        }
+        
+        .button-gray {
+            background-color: #6b7280;
+        }
+        
+        .button-gray:hover {
+            background-color: #4b5563;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .preview-section {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .preview-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+        
+        .company-preview {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #6b7280;
+        }
+        
+        .info-box {
+            background-color: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .info-text {
+            color: #1e40af;
+            font-size: 14px;
+        }
+        
+        .warning-box {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .warning-title {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .warning-text {
+            color: #92400e;
+            font-size: 14px;
+        }
+        
+        .image-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .image-upload-area:hover {
+            border-color: #2563eb;
+            background-color: #f8fafc;
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 100px;
+            border-radius: 6px;
+            margin: 8px auto;
+            display: block;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .template-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .template-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+        
+        .template-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .template-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-cols-12 {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-3,
+            .col-span-9 {
+                grid-column: span 1;
+            }
+            
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="admin-header">
+                <div class="admin-icon">💰</div>
+                <div>
+                    <div class="admin-title">Rechnungsadministration</div>
+                    <div class="admin-subtitle">Konfiguriere alle Rechnungseinstellungen und Firmendaten</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12">
+            <!-- Sidebar -->
+            <div class="col-span-3">
+                <div class="sidebar">
+                    <nav>
+                        <a href="index.html" class="nav-button">
+                            📊 Dashboard
+                        </a>
+                        <a href="companies.html" class="nav-button">
+                            🏢 Unternehmen
+                        </a>
+                        <a href="products.html" class="nav-button">
+                            📦 Produkte
+                        </a>
+                        <a href="invoices.html" class="nav-button">
+                            💰 Rechnungen
+                        </a>
+                        <a href="create-invoice.html" class="nav-button">
+                            ✏️ Neue Rechnung
+                        </a>
+                        <a href="search.html" class="nav-button">
+                            🔍 Suche
+                        </a>
+                        <a href="reminders.html" class="nav-button">
+                            📅 Erinnerungen (<span id="reminder-count">0</span>)
+                        </a>
+                        <a href="admin.html" class="nav-button">
+                            🛡️ Admin
+                        </a>
+                        <div style="border-top: 1px solid #e5e7eb; margin: 16px 0; padding-top: 16px;">
+                            <a href="#" class="nav-button active">
+                                💰 Rechnungs-Admin
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-span-9">
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchTab('company')" id="tab-company">
+                        🏢 Firmendaten
+                    </button>
+                    <button class="admin-tab" onclick="switchTab('settings')" id="tab-settings">
+                        ⚙️ Rechnungseinstellungen
+                    </button>
+                    <button class="admin-tab" onclick="switchTab('templates')" id="tab-templates">
+                        📄 Vorlagen & Design
+                    </button>
+                    <button class="admin-tab" onclick="switchTab('payment')" id="tab-payment">
+                        💳 Zahlungsdaten
+                    </button>
+                </div>
+
+                <!-- Company Data Tab -->
+                <div id="company-content">
+                    <div class="card">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
+                            🏢 Firmendaten konfigurieren
+                        </h3>
+                        
+                        <div class="info-box">
+                            <div class="info-title">📋 Wichtige Information</div>
+                            <div class="info-text">
+                                Diese Daten erscheinen auf allen Ihren Rechnungen als Absender. 
+                                Stellen Sie sicher, dass alle Angaben korrekt und vollständig sind.
+                            </div>
+                        </div>
+
+                        <form id="company-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Firmenname *</label>
+                                    <input type="text" id="company-name" class="form-input" 
+                                           placeholder="z.B. Simon Brenner Kernbohrtechnik" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Rechtsform</label>
+                                    <input type="text" id="company-legal-form" class="form-input" 
+                                           placeholder="z.B. Einzelunternehmen, GmbH, OG">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Vollständige Adresse *</label>
+                                <textarea id="company-address" class="form-input form-textarea" 
+                                         placeholder="Straße und Hausnummer&#10;PLZ Ort&#10;Land" required></textarea>
+                            </div>
+                            
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label class="form-label">Telefon *</label>
+                                    <input type="tel" id="company-phone" class="form-input" 
+                                           placeholder="+43 676 651 60 92" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">E-Mail *</label>
+                                    <input type="email" id="company-email" class="form-input" 
+                                           placeholder="office@kernbohrtechnik.at" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Website</label>
+                                    <input type="url" id="company-website" class="form-input" 
+                                           placeholder="www.kernbohrtechnik.at">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Steuernummer / UID</label>
+                                    <input type="text" id="company-tax-number" class="form-input" 
+                                           placeholder="ATU 75111834">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Firmenbuchnummer</label>
+                                    <input type="text" id="company-registration" class="form-input" 
+                                           placeholder="FN 123456a">
+                                </div>
+                            </div>
+
+                            <!-- Logo Upload -->
+                            <div class="form-group">
+                                <label class="form-label">Firmenlogo</label>
+                                <div class="image-upload-area" onclick="document.getElementById('logo-upload').click()">
+                                    <div id="logo-preview-container">
+                                        <div id="logo-placeholder">
+                                            <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                            <div style="font-weight: 500;">Logo hochladen</div>
+                                            <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+                                                Klicken oder Datei hierher ziehen<br>
+                                                PNG, JPG oder SVG (max. 2MB)
+                                            </div>
+                                        </div>
+                                        <img id="logo-preview" class="image-preview hidden" alt="Logo Vorschau">
+                                    </div>
+                                </div>
+                                <input type="file" id="logo-upload" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="button" onclick="saveCompanyData()">
+                                    💾 Firmendaten speichern
+                                </button>
+                                <button type="button" class="button button-gray" onclick="resetCompanyForm()">
+                                    🔄 Zurücksetzen
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Live Preview -->
+                        <div class="preview-section">
+                            <div class="preview-title">📄 Vorschau auf Rechnung</div>
+                            <div id="company-preview" class="company-preview">
+                                <!-- Wird automatisch aktualisiert -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Settings Tab -->
+                <div id="settings-content" class="hidden">
+                    <div class="card">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
+                            ⚙️ Rechnungseinstellungen
+                        </h3>
+
+                        <form id="settings-form">
+                            <!-- Invoice Numbering -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    🔢 Rechnungsnummerierung
+                                </h4>
+                                
+                                <div class="form-row-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Präfix</label>
+                                        <input type="text" id="invoice-prefix" class="form-input" 
+                                               placeholder="R-" value="R-">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Nächste Nummer</label>
+                                        <input type="number" id="next-invoice-number" class="form-input" 
+                                               min="1" value="1">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Führende Nullen</label>
+                                        <select id="invoice-padding" class="form-input">
+                                            <option value="0">Keine (1, 2, 3)</option>
+                                            <option value="3">3 Stellen (001, 002, 003)</option>
+                                            <option value="4" selected>4 Stellen (0001, 0002, 0003)</option>
+                                            <option value="5">5 Stellen (00001, 00002, 00003)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="preview-section" style="margin-top: 16px;">
+                                    <div class="preview-title">📋 Nächste Rechnungsnummer</div>
+                                    <div id="invoice-number-preview" style="font-size: 18px; font-weight: 600; color: #2563eb;">
+                                        R-0001
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Default Payment Terms -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    📅 Standard-Zahlungskonditionen
+                                </h4>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Zahlungsziel (Tage)</label>
+                                        <select id="default-payment-days" class="form-input">
+                                            <option value="7">7 Tage</option>
+                                            <option value="14">14 Tage</option>
+                                            <option value="30" selected>30 Tage</option>
+                                            <option value="45">45 Tage</option>
+                                            <option value="60">60 Tage</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Skonto (Optional)</label>
+                                        <input type="text" id="default-discount" class="form-input" 
+                                               placeholder="z.B. 2% bei Zahlung binnen 10 Tagen">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Standard-Zahlungshinweis</label>
+                                    <textarea id="default-payment-terms" class="form-input form-textarea" 
+                                             placeholder="z.B. Zahlung binnen 30 Tagen ohne Abzug.&#10;Bei Überschreitung der Zahlungsfrist werden Verzugszinsen verrechnet."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Customer Numbering -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    👥 Kundennummerierung
+                                </h4>
+                                
+                                <div class="form-row-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Präfix</label>
+                                        <input type="text" id="customer-prefix" class="form-input" 
+                                               placeholder="K-" value="K-">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Nächste Nummer</label>
+                                        <input type="number" id="next-customer-number" class="form-input" 
+                                               min="1" value="10030">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Format</label>
+                                        <select id="customer-padding" class="form-input">
+                                            <option value="0">Keine Führung (10030)</option>
+                                            <option value="5" selected>5 Stellen (10030)</option>
+                                            <option value="6">6 Stellen (010030)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-box">
+                                    <div class="info-title">💡 Kundennummern</div>
+                                    <div class="info-text">
+                                        Automatische Vergabe von Kundennummern für neue Unternehmen. 
+                                        Bestehende Unternehmen erhalten rückwirkend Nummern zugewiesen.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="button" onclick="saveInvoiceSettings()">
+                                    💾 Einstellungen speichern
+                                </button>
+                                <button type="button" class="button button-gray" onclick="resetSettingsForm()">
+                                    🔄 Zurücksetzen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Templates & Design Tab -->
+                <div id="templates-content" class="hidden">
+                    <div class="card">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
+                            📄 Rechnungsvorlagen & Design
+                        </h3>
+
+                        <!-- Template Selection -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                🎨 Vorlage auswählen
+                            </h4>
+                            
+                            <div class="template-grid">
+                                <div class="template-card selected" data-template="classic">
+                                    <div class="template-name">📋 Klassisch</div>
+                                    <div class="template-description">Traditionelles Rechnungslayout mit klarer Struktur</div>
+                                </div>
+                                
+                                <div class="template-card" data-template="modern">
+                                    <div class="template-name">✨ Modern</div>
+                                    <div class="template-description">Zeitgemäßes Design mit Farbakzenten</div>
+                                </div>
+                                
+                                <div class="template-card" data-template="minimal">
+                                    <div class="template-name">🎯 Minimal</div>
+                                    <div class="template-description">Reduziertes Design mit Fokus auf Inhalte</div>
+                                </div>
+                                
+                                <div class="template-card" data-template="corporate">
+                                    <div class="template-name">🏢 Corporate</div>
+                                    <div class="template-description">Professionelles Layout für Unternehmen</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Color Scheme -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                🎨 Farbschema
+                            </h4>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Primärfarbe</label>
+                                    <input type="color" id="primary-color" class="form-input" value="#2563eb" style="height: 40px;">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Akzentfarbe</label>
+                                    <input type="color" id="accent-color" class="form-input" value="#059669" style="height: 40px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QR Code Settings -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                📱 QR-Code Einstellungen
+                            </h4>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="enable-qr-code" checked>
+                                    <span>QR-Code auf Rechnungen anzeigen</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">QR-Code Typ</label>
+                                <select id="qr-code-type" class="form-input">
+                                    <option value="payment">Zahlungsinformationen</option>
+                                    <option value="contact">Kontaktdaten</option>
+                                    <option value="website">Website-Link</option>
+                                    <option value="custom">Benutzerdefiniert</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="qr-custom-content" style="display: none;">
+                                <label class="form-label">Benutzerdefinierter Inhalt</label>
+                                <textarea id="qr-content" class="form-input form-textarea" 
+                                         placeholder="Text oder URL für QR-Code"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Additional Images -->
+                        <div style="margin-bottom: 32px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                🖼️ Zusätzliche Bilder
+                            </h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Signatur-Bild</label>
+                                <div class="image-upload-area" onclick="document.getElementById('signature-upload').click()">
+                                    <div id="signature-preview-container">
+                                        <div id="signature-placeholder">
+                                            <div style="font-size: 24px; margin-bottom: 8px;">✍️</div>
+                                            <div style="font-weight: 500;">Signatur hochladen</div>
+                                            <div style="font-size: 14px; color: #6b7280; margin-top: 4px;">
+                                                Optional: Persönliche oder Firmen-Signatur
+                                            </div>
+                                        </div>
+                                        <img id="signature-preview" class="image-preview hidden" alt="Signatur Vorschau">
+                                    </div>
+                                </div>
+                                <input type="file" id="signature-upload" accept="image/*" style="display: none;" onchange="handleSignatureUpload(this)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="button" onclick="saveTemplateSettings()">
+                                💾 Vorlagen-Einstellungen speichern
+                            </button>
+                            <button type="button" class="button button-gray" onclick="previewInvoiceTemplate()">
+                                👁️ Vorschau anzeigen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Data Tab -->
+                <div id="payment-content" class="hidden">
+                    <div class="card">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1f2937;">
+                            💳 Zahlungsdaten & Bankverbindung
+                        </h3>
+
+                        <div class="warning-box">
+                            <div class="warning-title">⚠️ Wichtige Bankdaten</div>
+                            <div class="warning-text">
+                                Diese Daten erscheinen im Footer jeder Rechnung. 
+                                Überprüfen Sie alle Angaben auf Richtigkeit.
+                            </div>
+                        </div>
+
+                        <form id="payment-form">
+                            <!-- Primary Bank Account -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    🏦 Hauptbankverbindung
+                                </h4>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Bank / Kreditinstitut</label>
+                                        <input type="text" id="bank-name" class="form-input" 
+                                               placeholder="Sparkasse OÖ" value="Sparkasse OÖ">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Kontoinhaber</label>
+                                        <input type="text" id="account-holder" class="form-input" 
+                                               placeholder="Simon Brenner">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">IBAN *</label>
+                                        <input type="text" id="iban" class="form-input" 
+                                               placeholder="AT33 2032 0321 0051 6306" 
+                                               pattern="[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">BIC</label>
+                                        <input type="text" id="bic" class="form-input" 
+                                               placeholder="ASPKAT2LXXX">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alternative Payment Methods -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    💰 Alternative Zahlungsmethoden
+                                </h4>
+                                
+                                <div class="form-group">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" id="accept-paypal">
+                                        <span>PayPal akzeptieren</span>
+                                    </label>
+                                    <input type="email" id="paypal-email" class="form-input" 
+                                           placeholder="paypal@email.at" style="margin-top: 8px; display: none;">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" id="accept-crypto">
+                                        <span>Kryptowährungen akzeptieren</span>
+                                    </label>
+                                    <input type="text" id="crypto-address" class="form-input" 
+                                           placeholder="Bitcoin/Ethereum Adresse" style="margin-top: 8px; display: none;">
+                                </div>
+                            </div>
+
+                            <!-- Footer Configuration -->
+                            <div style="margin-bottom: 32px;">
+                                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #374151;">
+                                    📄 Rechnungs-Footer
+                                </h4>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Footer-Format</label>
+                                    <select id="footer-format" class="form-input" onchange="updateFooterPreview()">
+                                        <option value="single-line">Einzeilig (alle Daten in einer Zeile)</option>
+                                        <option value="multi-line">Mehrzeilig (strukturiert untereinander)</option>
+                                        <option value="custom">Benutzerdefiniert</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group" id="custom-footer-group" style="display: none;">
+                                    <label class="form-label">Benutzerdefinierter Footer-Text</label>
+                                    <textarea id="custom-footer" class="form-input form-textarea" 
+                                             placeholder="Benutzerdefinierter Footer-Text mit Platzhaltern:&#10;{company_name} | {bank_name} | IBAN: {iban} | BIC: {bic} | {tax_number}"></textarea>
+                                </div>
+                                
+                                <div class="preview-section">
+                                    <div class="preview-title">📋 Footer-Vorschau</div>
+                                    <div id="footer-preview" style="font-size: 12px; color: #6b7280; font-family: monospace;">
+                                        <!-- Wird automatisch generiert -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="button" onclick="savePaymentData()">
+                                    💾 Zahlungsdaten speichern
+                                </button>
+                                <button type="button" class="button button-gray" onclick="resetPaymentForm()">
+                                    🔄 Zurücksetzen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CRM Data Management
+        class CRMData {
+            static STORAGE_KEY = 'crm_data';
+            
+            static getDefaultData() {
+                return {
+                    companies: [],
+                    reminders: [],
+                    products: [],
+                    invoices: [],
+                    invoiceSettings: {
+                        // Company Info
+                        companyInfo: {
+                            name: '',
+                            legalForm: '',
+                            address: '',
+                            phone: '',
+                            email: '',
+                            website: '',
+                            taxNumber: '',
+                            registrationNumber: '',
+                            logo: null
+                        },
+                        // Invoice Settings
+                        invoiceNumberPrefix: 'R-',
+                        nextInvoiceNumber: 1,
+                        invoiceNumberPadding: 4,
+                        defaultPaymentTerms: 30,
+                        defaultPaymentText: 'Zahlung binnen 30 Tagen ohne Abzug.',
+                        defaultDiscountText: '',
+                        // Customer Settings
+                        customerNumberPrefix: 'K-',
+                        nextCustomerNumber: 10030,
+                        customerNumberPadding: 5,
+                        // Template Settings
+                        selectedTemplate: 'classic',
+                        primaryColor: '#2563eb',
+                        accentColor: '#059669',
+                        enableQRCode: true,
+                        qrCodeType: 'payment',
+                        qrCustomContent: '',
+                        signatureImage: null,
+                        // Payment Settings
+                        bankInfo: {
+                            bankName: '',
+                            accountHolder: '',
+                            iban: '',
+                            bic: ''
+                        },
+                        paymentMethods: {
+                            acceptPaypal: false,
+                            paypalEmail: '',
+                            acceptCrypto: false,
+                            cryptoAddress: ''
+                        },
+                        footerFormat: 'single-line',
+                        customFooterText: ''
+                    },
+                    tags: [],
+                    companyFields: [],
+                    contactFields: []
+                };
+            }
+            
+            static load() {
+                try {
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        const defaultData = this.getDefaultData();
+                        return {
+                            ...defaultData,
+                            ...parsed,
+                            invoiceSettings: { ...defaultData.invoiceSettings, ...(parsed.invoiceSettings || {}) }
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading CRM data:', e);
+                }
+                return this.getDefaultData();
+            }
+            
+            static save(data) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error('Error saving CRM data:', e);
+                }
+            }
+        }
+
+        let crmData = CRMData.load();
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Update tab styling
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('company-content').classList.toggle('hidden', tabName !== 'company');
+            document.getElementById('settings-content').classList.toggle('hidden', tabName !== 'settings');
+            document.getElementById('templates-content').classList.toggle('hidden', tabName !== 'templates');
+            document.getElementById('payment-content').classList.toggle('hidden', tabName !== 'payment');
+            
+            // Load tab content
+            switch(tabName) {
+                case 'company':
+                    loadCompanyForm();
+                    break;
+                case 'settings':
+                    loadSettingsForm();
+                    break;
+                case 'templates':
+                    loadTemplatesForm();
+                    break;
+                case 'payment':
+                    loadPaymentForm();
+                    break;
+            }
+        }
+
+        // Company Data Functions
+        function loadCompanyForm() {
+            const company = crmData.invoiceSettings.companyInfo;
+            
+            document.getElementById('company-name').value = company.name || '';
+            document.getElementById('company-legal-form').value = company.legalForm || '';
+            document.getElementById('company-address').value = company.address || '';
+            document.getElementById('company-phone').value = company.phone || '';
+            document.getElementById('company-email').value = company.email || '';
+            document.getElementById('company-website').value = company.website || '';
+            document.getElementById('company-tax-number').value = company.taxNumber || '';
+            document.getElementById('company-registration').value = company.registrationNumber || '';
+            
+            if (company.logo) {
+                document.getElementById('logo-preview').src = company.logo;
+                document.getElementById('logo-preview').classList.remove('hidden');
+                document.getElementById('logo-placeholder').style.display = 'none';
+            }
+            
+            updateCompanyPreview();
+        }
+
+        function updateCompanyPreview() {
+            const company = {
+                name: document.getElementById('company-name').value,
+                address: document.getElementById('company-address').value,
+                phone: document.getElementById('company-phone').value,
+                email: document.getElementById('company-email').value,
+                website: document.getElementById('company-website').value
+            };
+            
+            const preview = document.getElementById('company-preview');
+            preview.innerHTML = `
+                <strong>${company.name || 'Firmenname'}</strong><br>
+                ${company.address.replace(/\n/g, '<br>') || 'Adresse'}<br>
+                Tel: ${company.phone || 'Telefonnummer'}<br>
+                E-Mail: ${company.email || 'email@firma.at'}<br>
+                ${company.website ? `Web: ${company.website}<br>` : ''}
+            `;
+        }
+
+        function handleLogoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Datei zu groß. Maximum 2MB erlaubt.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logo-preview').src = e.target.result;
+                document.getElementById('logo-preview').classList.remove('hidden');
+                document.getElementById('logo-placeholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveCompanyData() {
+            const companyData = {
+                name: document.getElementById('company-name').value,
+                legalForm: document.getElementById('company-legal-form').value,
+                address: document.getElementById('company-address').value,
+                phone: document.getElementById('company-phone').value,
+                email: document.getElementById('company-email').value,
+                website: document.getElementById('company-website').value,
+                taxNumber: document.getElementById('company-tax-number').value,
+                registrationNumber: document.getElementById('company-registration').value,
+                logo: document.getElementById('logo-preview').src || null
+            };
+            
+            crmData.invoiceSettings.companyInfo = companyData;
+            CRMData.save(crmData);
+            
+            alert('✅ Firmendaten erfolgreich gespeichert!');
+        }
+
+        function resetCompanyForm() {
+            if (confirm('Möchten Sie alle Änderungen verwerfen?')) {
+                loadCompanyForm();
+            }
+        }
+
+        // Settings Functions
+        function loadSettingsForm() {
+            const settings = crmData.invoiceSettings;
+            
+            document.getElementById('invoice-prefix').value = settings.invoiceNumberPrefix || 'R-';
+            document.getElementById('next-invoice-number').value = settings.nextInvoiceNumber || 1;
+            document.getElementById('invoice-padding').value = settings.invoiceNumberPadding || 4;
+            document.getElementById('default-payment-days').value = settings.defaultPaymentTerms || 30;
+            document.getElementById('default-discount').value = settings.defaultDiscountText || '';
+            document.getElementById('default-payment-terms').value = settings.defaultPaymentText || '';
+            document.getElementById('customer-prefix').value = settings.customerNumberPrefix || 'K-';
+            document.getElementById('next-customer-number').value = settings.nextCustomerNumber || 10030;
+            document.getElementById('customer-padding').value = settings.customerNumberPadding || 5;
+            
+            updateInvoiceNumberPreview();
+        }
+
+        function updateInvoiceNumberPreview() {
+            const prefix = document.getElementById('invoice-prefix').value;
+            const number = document.getElementById('next-invoice-number').value;
+            const padding = parseInt(document.getElementById('invoice-padding').value);
+            
+            const paddedNumber = padding > 0 ? number.padStart(padding, '0') : number;
+            document.getElementById('invoice-number-preview').textContent = prefix + paddedNumber;
+        }
+
+        function saveInvoiceSettings() {
+            const settings = {
+                invoiceNumberPrefix: document.getElementById('invoice-prefix').value,
+                nextInvoiceNumber: parseInt(document.getElementById('next-invoice-number').value),
+                invoiceNumberPadding: parseInt(document.getElementById('invoice-padding').value),
+                defaultPaymentTerms: parseInt(document.getElementById('default-payment-days').value),
+                defaultDiscountText: document.getElementById('default-discount').value,
+                defaultPaymentText: document.getElementById('default-payment-terms').value,
+                customerNumberPrefix: document.getElementById('customer-prefix').value,
+                nextCustomerNumber: parseInt(document.getElementById('next-customer-number').value),
+                customerNumberPadding: parseInt(document.getElementById('customer-padding').value)
+            };
+            
+            Object.assign(crmData.invoiceSettings, settings);
+            CRMData.save(crmData);
+            
+            alert('✅ Rechnungseinstellungen erfolgreich gespeichert!');
+        }
+
+        function resetSettingsForm() {
+            if (confirm('Möchten Sie alle Änderungen verwerfen?')) {
+                loadSettingsForm();
+            }
+        }
+
+        // Templates Functions
+        function loadTemplatesForm() {
+            const settings = crmData.invoiceSettings;
+            
+            // Template selection
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.template === settings.selectedTemplate) {
+                    card.classList.add('selected');
+                }
+            });
+            
+            // Colors
+            document.getElementById('primary-color').value = settings.primaryColor || '#2563eb';
+            document.getElementById('accent-color').value = settings.accentColor || '#059669';
+            
+            // QR Code
+            document.getElementById('enable-qr-code').checked = settings.enableQRCode !== false;
+            document.getElementById('qr-code-type').value = settings.qrCodeType || 'payment';
+            document.getElementById('qr-content').value = settings.qrCustomContent || '';
+            toggleQRCustomContent();
+            
+            // Signature
+            if (settings.signatureImage) {
+                document.getElementById('signature-preview').src = settings.signatureImage;
+                document.getElementById('signature-preview').classList.remove('hidden');
+                document.getElementById('signature-placeholder').style.display = 'none';
+            }
+        }
+
+        function toggleQRCustomContent() {
+            const type = document.getElementById('qr-code-type').value;
+            const customGroup = document.getElementById('qr-custom-content');
+            customGroup.style.display = type === 'custom' ? 'block' : 'none';
+        }
+
+        function handleSignatureUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('signature-preview').src = e.target.result;
+                document.getElementById('signature-preview').classList.remove('hidden');
+                document.getElementById('signature-placeholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveTemplateSettings() {
+            const selectedTemplate = document.querySelector('.template-card.selected')?.dataset.template || 'classic';
+            
+            const templateSettings = {
+                selectedTemplate: selectedTemplate,
+                primaryColor: document.getElementById('primary-color').value,
+                accentColor: document.getElementById('accent-color').value,
+                enableQRCode: document.getElementById('enable-qr-code').checked,
+                qrCodeType: document.getElementById('qr-code-type').value,
+                qrCustomContent: document.getElementById('qr-content').value,
+                signatureImage: document.getElementById('signature-preview').src || null
+            };
+            
+            Object.assign(crmData.invoiceSettings, templateSettings);
+            CRMData.save(crmData);
+            
+            alert('✅ Vorlagen-Einstellungen erfolgreich gespeichert!');
+        }
+
+        function previewInvoiceTemplate() {
+            alert('📄 Vorschau-Funktion wird in der nächsten Version implementiert.');
+        }
+
+        // Payment Functions
+        function loadPaymentForm() {
+            const bank = crmData.invoiceSettings.bankInfo || {};
+            const payment = crmData.invoiceSettings.paymentMethods || {};
+            
+            document.getElementById('bank-name').value = bank.bankName || '';
+            document.getElementById('account-holder').value = bank.accountHolder || '';
+            document.getElementById('iban').value = bank.iban || '';
+            document.getElementById('bic').value = bank.bic || '';
+            
+            document.getElementById('accept-paypal').checked = payment.acceptPaypal || false;
+            document.getElementById('paypal-email').value = payment.paypalEmail || '';
+            document.getElementById('accept-crypto').checked = payment.acceptCrypto || false;
+            document.getElementById('crypto-address').value = payment.cryptoAddress || '';
+            
+            document.getElementById('footer-format').value = crmData.invoiceSettings.footerFormat || 'single-line';
+            document.getElementById('custom-footer').value = crmData.invoiceSettings.customFooterText || '';
+            
+            togglePaymentMethods();
+            toggleCustomFooter();
+            updateFooterPreview();
+        }
+
+        function togglePaymentMethods() {
+            const paypalEmail = document.getElementById('paypal-email');
+            const cryptoAddress = document.getElementById('crypto-address');
+            
+            paypalEmail.style.display = document.getElementById('accept-paypal').checked ? 'block' : 'none';
+            cryptoAddress.style.display = document.getElementById('accept-crypto').checked ? 'block' : 'none';
+        }
+
+        function toggleCustomFooter() {
+            const format = document.getElementById('footer-format').value;
+            const customGroup = document.getElementById('custom-footer-group');
+            customGroup.style.display = format === 'custom' ? 'block' : 'none';
+        }
+
+        function updateFooterPreview() {
+            const company = crmData.invoiceSettings.companyInfo;
+            const bank = {
+                bankName: document.getElementById('bank-name').value || 'Bank Name',
+                iban: document.getElementById('iban').value || 'AT00 0000 0000 0000 0000',
+                bic: document.getElementById('bic').value || 'BICCODE'
+            };
+            const format = document.getElementById('footer-format').value;
+            
+            let preview = '';
+            
+            switch(format) {
+                case 'single-line':
+                    preview = `${company.name || 'Firmenname'} | ${bank.bankName} | IBAN: ${bank.iban} | BIC: ${bank.bic} | ${company.taxNumber || 'Steuernummer'}`;
+                    break;
+                case 'multi-line':
+                    preview = `${company.name || 'Firmenname'}<br>`;
+                    preview += `Bankverbindung: ${bank.bankName}<br>`;
+                    preview += `IBAN: ${bank.iban} | BIC: ${bank.bic}<br>`;
+                    preview += `${company.taxNumber ? company.taxNumber : 'Steuernummer'}`;
+                    break;
+                case 'custom':
+                    preview = document.getElementById('custom-footer').value
+                        .replace('{company_name}', company.name || 'Firmenname')
+                        .replace('{bank_name}', bank.bankName)
+                        .replace('{iban}', bank.iban)
+                        .replace('{bic}', bank.bic)
+                        .replace('{tax_number}', company.taxNumber || 'Steuernummer');
+                    break;
+            }
+            
+            document.getElementById('footer-preview').innerHTML = preview;
+        }
+
+        function savePaymentData() {
+            const bankData = {
+                bankName: document.getElementById('bank-name').value,
+                accountHolder: document.getElementById('account-holder').value,
+                iban: document.getElementById('iban').value,
+                bic: document.getElementById('bic').value
+            };
+            
+            const paymentData = {
+                acceptPaypal: document.getElementById('accept-paypal').checked,
+                paypalEmail: document.getElementById('paypal-email').value,
+                acceptCrypto: document.getElementById('accept-crypto').checked,
+                cryptoAddress: document.getElementById('crypto-address').value
+            };
+            
+            crmData.invoiceSettings.bankInfo = bankData;
+            crmData.invoiceSettings.paymentMethods = paymentData;
+            crmData.invoiceSettings.footerFormat = document.getElementById('footer-format').value;
+            crmData.invoiceSettings.customFooterText = document.getElementById('custom-footer').value;
+            
+            CRMData.save(crmData);
+            
+            alert('✅ Zahlungsdaten erfolgreich gespeichert!');
+        }
+
+        function resetPaymentForm() {
+            if (confirm('Möchten Sie alle Änderungen verwerfen?')) {
+                loadPaymentForm();
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Company form updates
+            ['company-name', 'company-address', 'company-phone', 'company-email', 'company-website'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', updateCompanyPreview);
+            });
+            
+            // Invoice number preview updates
+            ['invoice-prefix', 'next-invoice-number', 'invoice-padding'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', updateInvoiceNumberPreview);
+            });
+            
+            // Template selection
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // QR Code type change
+            document.getElementById('qr-code-type')?.addEventListener('change', toggleQRCustomContent);
+            
+            // Payment method toggles
+            document.getElementById('accept-paypal')?.addEventListener('change', togglePaymentMethods);
+            document.getElementById('accept-crypto')?.addEventListener('change', togglePaymentMethods);
+            
+            // Footer updates
+            document.getElementById('footer-format')?.addEventListener('change', function() {
+                toggleCustomFooter();
+                updateFooterPreview();
+            });
+            
+            ['bank-name', 'iban', 'bic', 'custom-footer'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', updateFooterPreview);
+            });
+            
+            // Initialize first tab
+            loadCompanyForm();
+        });
+
+        function updateReminderCount() {
+            const activeReminders = crmData.reminders.filter(r => !r.completed).length;
+            document.getElementById('reminder-count').textContent = activeReminders;
+        }
+
+        // Initialize
+        window.onload = function() {
+            updateReminderCount();
+        };
+    </script>
+</body>
+</html>
